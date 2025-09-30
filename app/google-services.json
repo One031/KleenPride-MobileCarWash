@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "21271882301",
+    "project_id": "kleenpride-mobilecarwash",
+    "storage_bucket": "kleenpride-mobilecarwash.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21271882301:android:20d3529484feab75fe9854",
+        "android_client_info": {
+          "package_name": "com.s4.kleenpride_mobilecarwash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXcAKl7zfzblNIxenbWHUequiHPfWyHJs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
