@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">KleenPride-MobileCarWash</string>
+    <string name="app_name">KleenPride</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="register">Register</string>
+    <string name="already_have_account">Already have an account? Log in</string>
+    <string name="or_sign_in_with">Or sign in with:</string>
+    <string name="default_web_client_id">YOUR_CLIENT_ID_HERE</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="no_account_register">Don\'t have an account? Register</string>
 </resources>

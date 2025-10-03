@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "960096478862",
+    "project_id": "kleenpride-83693",
+    "storage_bucket": "kleenpride-83693.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960096478862:android:5027f80a83250fa2fa8bdf",
+        "android_client_info": {
+          "package_name": "com.example.kleenpride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "960096478862-uk9oo45rnpbbgto0tikbpdbahjrmva5u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kleenpride",
+            "certificate_hash": "390ea69241a391ca01b3caf504bb31c5c8fcc4ed"
+          }
+        },
+        {
+          "client_id": "960096478862-citjs70ao3e89jb3mf2rr96u05mbg46v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArAbOgjHSfwaVjj6DuEjSwChA5XDoJYLI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "960096478862-citjs70ao3e89jb3mf2rr96u05mbg46v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
