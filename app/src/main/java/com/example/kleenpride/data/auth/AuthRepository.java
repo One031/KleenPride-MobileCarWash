@@ -1,8 +1,10 @@
-package com.s4.kleenpride_mobilecarwash.data.auth;
+package com.example.kleenpride.data.auth;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 
 /**
@@ -60,6 +62,29 @@ public class AuthRepository {
                         throw task.getException();
                     }
                 });
+    }
+    /**
+    Logging in with Google credentials
+     */
+
+    public Task<FirebaseUser> loginWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        return auth.signInWithCredential(credential)
+                .continueWith(task -> {
+                    if(task.isSuccessful()){
+                        return auth.getCurrentUser();
+                    }else {
+                        throw task.getException();
+                    }
+                });
+    }
+
+    /**
+     * Forgot Password
+     */
+
+    public Task<Void> sendPasswordResetEmail(String email) {
+        return auth.sendPasswordResetEmail(email);
     }
 
     /**

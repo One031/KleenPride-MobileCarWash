@@ -1,4 +1,4 @@
-package com.s4.kleenpride_mobilecarwash;
+package com.example.kleenpride;
 
 import static org.junit.Assert.assertNotNull;
 

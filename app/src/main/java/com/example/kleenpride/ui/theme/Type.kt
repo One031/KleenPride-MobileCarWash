@@ -1,4 +1,4 @@
-package com.s4.kleenpride_mobilecarwash.ui.theme
+package com.example.kleenpride.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -1,11 +1,12 @@
-package com.s4.kleenpride_mobilecarwash.viewmodel;
+package com.example.kleenpride.viewmodel;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
 import com.google.firebase.auth.FirebaseUser;
-import com.s4.kleenpride_mobilecarwash.data.auth.AuthRepository;
+import com.example.kleenpride.data.auth.AuthRepository;
+import com.google.firebase.auth.GoogleAuthCredential;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 /**
  * AuthViewModel acts a a bridge between the UI and AuthRepository
@@ -23,16 +24,20 @@ public class AuthViewModel extends ViewModel {
     // LiveData to observe error messages from Firebase operations
     private final MutableLiveData<String> errorLiveData;
 
+    // LiveData to observe Forgot Password status
+    private final MutableLiveData<Boolean> resetPasswordStatusLiveData;
     // Constructor initializes repository and LiveData
     public AuthViewModel() {
         authRepo = new AuthRepository();
         userLiveData = new MutableLiveData<>();
         errorLiveData = new MutableLiveData<>();
+        resetPasswordStatusLiveData = new MutableLiveData<>();
     }
 
     // Expose immutable LiveData for the UI to observe
     public LiveData<FirebaseUser> getUserLiveData() { return userLiveData; }
     public LiveData<String> getErrorLiveData() { return errorLiveData; }
+    public LiveData<Boolean> getResetPasswordStatusLiveData() { return resetPasswordStatusLiveData; }
 
     /**
      * Registers a new user using the AuthRepository
@@ -60,6 +65,23 @@ public class AuthViewModel extends ViewModel {
         authRepo.login(email, password)
                 .addOnSuccessListener(user -> userLiveData.postValue(user))
                 .addOnFailureListener(e -> errorLiveData.postValue(e.getMessage()));
+    }
+
+    // Login with Google
+    public void googleLogin(String idToken) {
+        authRepo.loginWithGoogle(idToken)
+                .addOnSuccessListener(user -> userLiveData.postValue(user))
+                .addOnFailureListener(e -> errorLiveData.postValue(e.getMessage()));
+    }
+
+    // Forgot password
+    public void resetPassword(String email) {
+        authRepo.sendPasswordResetEmail(email)
+                .addOnSuccessListener(unused -> resetPasswordStatusLiveData.postValue(true))
+                .addOnFailureListener(e -> {
+                    resetPasswordStatusLiveData.postValue(false);
+                    errorLiveData.postValue(e.getMessage());
+                });
     }
 
     /**
