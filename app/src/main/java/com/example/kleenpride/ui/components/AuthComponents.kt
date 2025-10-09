@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.LocalTextStyle // for isError
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -27,11 +29,14 @@ fun CustomTextField(
     label: String,
     leadingIcon: @Composable (() -> Unit)? = null,
     isPassword: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false, //readonly for certain text fields, eg. dropdowns
+    isError: Boolean = false, // error indicator for fields left out
+    textStyle: TextStyle = LocalTextStyle.current.copy(color = Color.White)
 ) {
     val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = Color.Green,
-        unfocusedBorderColor = Color.White,
+        focusedBorderColor = if (isError) Color.Red else Color.Green, //  red border on focus if error
+        unfocusedBorderColor = if (isError) Color.Red else Color.White, // white normally. This just changes the state when the field is left out
         focusedTextColor = Color.White,
         unfocusedTextColor = Color.Green,
         cursorColor = Color.White,
@@ -48,7 +53,9 @@ fun CustomTextField(
         leadingIcon = leadingIcon,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         modifier = modifier.fillMaxWidth(),
-        colors = textFieldColors
+        readOnly = readOnly,
+        colors = textFieldColors,
+        textStyle = textStyle
     )
 }
 
