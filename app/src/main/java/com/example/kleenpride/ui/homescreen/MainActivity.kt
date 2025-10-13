@@ -1,224 +1,307 @@
 package com.example.kleenpride.ui.homescreen
 
+import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.text.SimpleDateFormat // daily time update so that it shows the current day, date, year
+import androidx.core.view.WindowCompat
+import com.example.kleenpride.R
+import com.example.kleenpride.ui.theme.LimeGreen
+import java.text.SimpleDateFormat
 import java.util.*
 
-//Change as much as you want, every functionality is here, by "//" you can null a line or code, so that you dont have to delete it.
-/* HOME SCREEN */
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Status bar overlap was fixed, and then made it black as well
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = android.graphics.Color.BLACK
+
+        setContent {
+            HomeScreen()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    val userName = "John Doe" // for now, user name should be fetched
-    val initials = userName.split(" ").map { it.first() }.joinToString("").uppercase()// profile button, with initials of username
     val context = LocalContext.current
-    val today = SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(Date())//Gets updated time on daily
+    val today = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault()).format(Date())
 
+    var selectedLocation by remember { mutableStateOf("Noida") }
+    var expandedLocation by remember { mutableStateOf(false) }
+    val locations = listOf("Cape Town", "Johannesburg", "Durban")
+
+    var selectedCar by remember { mutableStateOf("Hyundai") }
+    var expandedCar by remember { mutableStateOf(false) }
+    val cars = listOf("Hyundai", "Toyota", "BMW", "Mercedes", "Ford")
+
+    // Added inset padding so that the UI moves below the system bar
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Black)
-            .padding(16.dp)
+            .background(Color.Black)
+            .padding(WindowInsets.statusBars.asPaddingValues())
     ) {
-        // Greeting Section
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Hi, $userName!", // The user name should be fetched from database
-                    color = Color.White,
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    text = today,
-                    color = Color.Gray,
-                    fontSize = 18.sp
-                )
-            }
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(50.dp)
-                    .background(Color.DarkGray, shape = CircleShape)
-                    .border(2.dp, Color.Green, CircleShape)
-            ) {
-                Text(initials, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            }
-        }
-
-        // Notifications Box, isnt clickable, but can be turned into what you desire
+        // Top Header Bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
-                .padding(top = 8.dp)
-                .background(Color(0xFF101010), shape = RoundedCornerShape(12.dp))
-                .border(1.dp, Color(0xFFDDDDDD), shape = RoundedCornerShape(12.dp))
-                .padding(12.dp)
+                .background(Color.Black)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Text(
-                text = "Notification messages",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White
-            )
-        }
-
-        // Two Action Boxes Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Make Booking Box, when clicked needs to take you to service screen
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(160.dp)
-                    .background(Color(0xFF101010), shape = RoundedCornerShape(12.dp))
-                    .border(1.dp, Color(0xFFDDDDDD), shape = RoundedCornerShape(12.dp))
-                    .clickable {
-                        Toast.makeText(context, "Make Booking clicked", Toast.LENGTH_SHORT).show()
-                    }
-                    .padding(12.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Make Booking",
-                    color = Color.White,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // View Appointments Box, its up to you to decide what happens when clicked
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(160.dp)
-                    .background(Color(0xFF101010), shape = RoundedCornerShape(12.dp))
-                    .border(1.dp, Color(0xFFDDDDDD), shape = RoundedCornerShape(12.dp))
-                    .clickable {
-                        Toast.makeText(context, "View Appointments clicked", Toast.LENGTH_SHORT).show()
-                    }
-                    .padding(12.dp)
-            ) {
-                Column {
-                    Text(
-                        text = "View Appointments:",
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
+                // Top left side for the Home Location
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn,
+                        contentDescription = "Location",
+                        tint = Color(0xFF00FF00)
                     )
-                    Text(
-                        text = today,
-                        color = Color.White,
-                        fontSize = 14.sp
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Home", color = Color.White, fontWeight = FontWeight.Bold)
+                            Icon(
+                                imageVector = Icons.Filled.ExpandMore,
+                                contentDescription = "Dropdown",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Text("Cape Town", color = Color.Gray, fontSize = 12.sp)
+                    }
+                }
+
+                // Right side for choosing the car.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(horizontalAlignment = Alignment.End) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Honda", color = Color.White, fontWeight = FontWeight.Bold)
+                            Icon(
+                                imageVector = Icons.Filled.ExpandMore,
+                                contentDescription = "Dropdown",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Text("4-wheeler", color = Color.Gray, fontSize = 12.sp)
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Filled.DirectionsCar,
+                        contentDescription = "Car",
+                        tint = Color(0xFF00FF00)
                     )
                 }
             }
         }
 
-        // Review Section, when clicked, allow it to take user to a review screen with stars and comments
-        Column(
+        // Top Banner
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp)
+                .height(200.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+            Image(
+                painter = painterResource(id = R.drawable.car_banner),
+                contentDescription = "Banner",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = "Happy with our services? Why not leave a ",
+                    text = "Pride in Every Ride",
                     color = Color.White,
-                    fontSize = 15.sp
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Review", //when clicked, allow it to take user to a review screen with stars and comments
-                    color = Color.Green,
-                    fontSize = 15.sp,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable {
-                        Toast.makeText(context, "Review clicked", Toast.LENGTH_SHORT).show()
-                    }
-                )
-                Text(
-                    text = "?",
+                    text = "Get Quick Wash",
                     color = Color.White,
-                    fontSize = 14.sp
+                    fontSize = 18.sp
                 )
+                Button(
+                    onClick = {
+                        Toast.makeText(context, "Book Now clicked", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.padding(top = 8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = LimeGreen)
+                ) {
+                    Text("Book Now", color = Color.Black, fontWeight = FontWeight.Bold)
+                }
             }
+        }
 
-            Box(//this where the google maps display supposed to be
+        // Our Services Section
+        Text(
+            text = "Our Services",
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = "Choose from our wide range of professional services",
+            color = Color.Gray,
+            fontSize = 14.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            textAlign = TextAlign.Center
+        )
+
+        val services = listOf(
+            ServiceItem("Pride Wash", R.drawable.pridewash),
+            ServiceItem("Wash & Go", R.drawable.washgo),
+            ServiceItem("Interior Detailing", R.drawable.cardetailing),
+            ServiceItem("Car Valet & Detailing", R.drawable.carvalet),
+        )
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(services) { service ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable {
+                            Toast.makeText(context, "${service.name} clicked", Toast.LENGTH_SHORT).show()
+                        }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(90.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.DarkGray)
+                            .border(2.dp, LimeGreen, RoundedCornerShape(16.dp))
+                    ) {
+                        Image(
+                            painter = painterResource(id = service.image),
+                            contentDescription = service.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = service.name,
+                        fontSize = 14.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+
+        // Popular Services Section
+        Text(
+            text = "Popular Services",
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = "Choose from our wide range of professional services",
+            color = Color.Gray,
+            fontSize = 14.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            textAlign = TextAlign.Center
+        )
+
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .clickable {
+                    Toast.makeText(context, "Quick Wash clicked", Toast.LENGTH_SHORT).show()
+                }
+        ) {
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .padding(top = 8.dp)
-                    .background(Color(0xFF101010), shape = RoundedCornerShape(12.dp))
-                    .border(1.dp, Color(0xFFDDDDDD), shape = RoundedCornerShape(12.dp))
-            )
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("CAR VALET & DETAILING", fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("From R450", color = Color.Gray, fontSize = 14.sp)
+                }
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
         // Bottom Navigation
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = {
-                Toast.makeText(context, "Back clicked", Toast.LENGTH_SHORT).show()
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
-                )
-            }
-            IconButton(onClick = { // have this home button on all pages, you can null the arrow back and home icon, by "//" just keep the code so its a copy and paste on other .kt files
-                Toast.makeText(context, "Home clicked", Toast.LENGTH_SHORT).show()
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = "Home",
-                    tint = Color.White
-                )
-            }
+        NavigationBar(containerColor = Color.Black) {
+            NavigationBarItem(
+                selected = true,
+                onClick = { Toast.makeText(context, "Home", Toast.LENGTH_SHORT).show() },
+                icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = LimeGreen) },
+                label = { Text("Home", color = Color.White) }
+            )
         }
     }
 }
 
-/*PREVIEW */
+data class ServiceItem(val name: String, val image: Int)
+
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewHomeScreen() {
