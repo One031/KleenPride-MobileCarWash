@@ -44,11 +44,12 @@ public class AuthViewModel extends ViewModel {
      * Updates LiveData with the result for the UI to observe
      */
 
-    public void register(String email, String password) {
+    public void register(String email, String password, Runnable onSucess) {
         authRepo.register(email, password)
                 .addOnSuccessListener(user -> {
                     // On success, post the FirebaseUser to LiveData
                     userLiveData.postValue(user);
+                    if (onSucess != null) onSucess.run();
                 })
                 .addOnFailureListener(e -> {
                     // On failure, post the error message to LiveData

@@ -84,7 +84,6 @@ class LoginActivity : ComponentActivity() {
                 LoginScreenUI(
                     authViewModel = authViewModel,
                     onGoogleSignInClick = { signInWithGoogle() }, // Handle Google Sign-In
-                    onNavigateToRegister = { navigateToRegister() } // Handle navigation to Register
                 )
             }
         }
@@ -96,13 +95,6 @@ class LoginActivity : ComponentActivity() {
         googleSignInLauncher.launch(signInIntent)
     }
 
-    /**
-     * Navigate to RegisterActivity
-     * We don't call finish() here because we want to keep the LoginActivity open
-     */
-    private fun navigateToRegister() {
-        startActivity(Intent(this, RegisterActivity::class.java))
-    }
 }
 
 /**
@@ -117,8 +109,8 @@ fun LoginScreenUI(
     onNavigateToRegister: (() -> Unit)? = null
 ) {
     // Local UI state
-    var email by remember { mutableStateOf("john.doe@example.com") }
-    var password by remember { mutableStateOf("password") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
 
     // Observe ViewModel LiveData when provided
@@ -243,27 +235,6 @@ fun LoginScreenUI(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Link to Register screen - calls the navigation lambda from Activity
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Don't have an account?",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Register",
-                    color = Color.Green,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(start = 4.dp)
-                        .clickable { onNavigateToRegister?.invoke() }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
             // Feedback message (success or error)
             message?.let {
                 Text(
@@ -280,6 +251,6 @@ fun LoginScreenUI(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreenUI(authViewModel = null, onGoogleSignInClick = null, onNavigateToRegister = null)
+    LoginScreenUI(authViewModel = null, onGoogleSignInClick = null)
 }
 
