@@ -289,14 +289,7 @@ fun HomeScreen() {
         Spacer(modifier = Modifier.weight(1f))
 
         // Bottom Navigation
-        NavigationBar(containerColor = Color.Black) {
-            NavigationBarItem(
-                selected = true,
-                onClick = { Toast.makeText(context, "Home", Toast.LENGTH_SHORT).show() },
-                icon = { Icon(Icons.Default.Home, contentDescription = "Home", tint = LimeGreen) },
-                label = { Text("Home", color = Color.White) }
-            )
-        }
+        com.example.kleenpride.ui.components.BottomNavBar(currentScreen = "home")
     }
 }
 
