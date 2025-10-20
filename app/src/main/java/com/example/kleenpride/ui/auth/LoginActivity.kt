@@ -18,6 +18,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -105,13 +106,14 @@ class LoginActivity : ComponentActivity() {
 @Composable
 fun LoginScreenUI(
     authViewModel: AuthViewModel? = viewModel(),
-    onGoogleSignInClick: (() -> Unit)? = null,
-    onNavigateToRegister: (() -> Unit)? = null
+    onGoogleSignInClick: (() -> Unit)? = null
 ) {
     // Local UI state
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
 
     // Observe ViewModel LiveData when provided
     if (authViewModel != null) {
@@ -121,10 +123,13 @@ fun LoginScreenUI(
         // react to login success
         LaunchedEffect(user) {
             if (user != null) {
-                // Navigate to MainActivity
+                // Show a quick success message
                 message = "Login Successful!"
 
-                // TODO: Navigate to MainActivity
+                // Navigate to MainActivity
+                val intent = Intent(context, com.example.kleenpride.ui.homescreen.MainActivity::class.java)
+                context.startActivity(intent)
+
             }
         }
 
