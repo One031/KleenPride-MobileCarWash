@@ -24,6 +24,7 @@ class AccountSetupViewModel : ViewModel() {
     var address = mutableStateOf("")
 
     // Step 3: Car Size & Favourites
+    var carBrand = mutableStateOf("")
     var carSize = mutableStateOf("")
     val favourites = mutableStateListOf<String>()
 
@@ -98,6 +99,7 @@ class AccountSetupViewModel : ViewModel() {
         }
 
         val data = mapOf(
+            "carBrand" to carBrand.value,
             "carSize" to carSize.value,
             "favourites" to favourites.toList()
         )
