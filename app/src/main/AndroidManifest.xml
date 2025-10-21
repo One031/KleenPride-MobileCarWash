@@ -31,6 +31,11 @@
             android:exported="true">
         </activity>
 
+        <activity
+            android:name=".ui.alerts.AlertsActivity"
+            android:exported="true">
+        </activity>
+
 
         <!-- Make WelcomeScreen the launcher -->
         <activity
