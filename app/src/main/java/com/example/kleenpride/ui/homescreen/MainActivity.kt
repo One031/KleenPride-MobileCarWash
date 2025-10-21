@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,8 +42,6 @@ import java.util.*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Status bar overlap was fixed, and then made it black as well
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = android.graphics.Color.BLACK
 
@@ -60,17 +57,12 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
     val context = LocalContext.current
     val today = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault()).format(Date())
 
-    var selectedLocation by remember { mutableStateOf("Noida") }
-    var expandedLocation by remember { mutableStateOf(false) }
-    val locations = listOf("Cape Town", "Johannesburg", "Durban")
+    var selectedService by remember { mutableStateOf<ServiceItem?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
 
-    var selectedCar by remember { mutableStateOf("Hyundai") }
-    var expandedCar by remember { mutableStateOf(false) }
-    val cars = listOf("Hyundai", "Toyota", "BMW", "Mercedes", "Ford")
     val userData by viewModel.userData.observeAsState()
     val error by viewModel.error.observeAsState()
 
-    // Added inset padding so that the UI moves below the system bar
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,7 +70,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
             .padding(WindowInsets.statusBars.asPaddingValues())
     ) {
 
-        // Top Header Bar
+        // --- Top Header ---
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,12 +82,11 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Top left side for the Home Location
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Filled.LocationOn,
                         contentDescription = "Location",
-                        tint = Color(0xFF00FF00)
+                        tint = LimeGreen
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Column {
@@ -108,15 +99,22 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                                 modifier = Modifier.size(16.dp)
                             )
                         }
-                        Text(userData?.address?.ifEmpty {"No address"} ?: "Loading...", color = Color.Gray, fontSize = 12.sp)
+                        Text(
+                            userData?.address?.ifEmpty { "No address" } ?: "Loading...",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                 }
 
-                // Right side for choosing the car.
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(horizontalAlignment = Alignment.End) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(userData?.carBrand?.ifEmpty { "No car set" } ?: "Loading...", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(
+                                userData?.carBrand?.ifEmpty { "No car set" } ?: "Loading...",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                             Icon(
                                 imageVector = Icons.Filled.ExpandMore,
                                 contentDescription = "Dropdown",
@@ -124,19 +122,23 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                                 modifier = Modifier.size(16.dp)
                             )
                         }
-                        Text(userData?.carSize?.ifEmpty { "No car set" } ?: "Loading...", color = Color.Gray, fontSize = 12.sp)
+                        Text(
+                            userData?.carSize?.ifEmpty { "No car set" } ?: "Loading...",
+                            color = Color.Gray,
+                            fontSize = 12.sp
+                        )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.Filled.DirectionsCar,
                         contentDescription = "Car",
-                        tint = Color(0xFF00FF00)
+                        tint = LimeGreen
                     )
                 }
             }
         }
 
-        // Top Banner
+        // --- Banner ---
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,9 +167,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                     fontSize = 18.sp
                 )
                 Button(
-                    onClick = {
-                        Toast.makeText(context, "Book Now clicked", Toast.LENGTH_SHORT).show()
-                    },
+                    onClick = { Toast.makeText(context, "Book Now clicked", Toast.LENGTH_SHORT).show() },
                     modifier = Modifier.padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = LimeGreen)
                 ) {
@@ -176,7 +176,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
             }
         }
 
-        // Our Services Section
+        // --- Our Services ---
         Text(
             text = "Our Services",
             fontWeight = FontWeight.Bold,
@@ -187,6 +187,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                 .padding(vertical = 12.dp),
             textAlign = TextAlign.Center
         )
+
         Text(
             text = "Choose from our wide range of professional services",
             color = Color.Gray,
@@ -198,10 +199,14 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
         )
 
         val services = listOf(
-            ServiceItem("Pride Wash", R.drawable.pridewash),
-            ServiceItem("Wash & Go", R.drawable.washgo),
-            ServiceItem("Interior Detailing", R.drawable.cardetailing),
-            ServiceItem("Car Valet & Detailing", R.drawable.carvalet),
+            ServiceItem("Pride Wash", R.drawable.pridewash, "R110 - R140", "30 min", "Quick exterior wash to keep your car looking fresh",
+                listOf("Full Exterior Was", "Interior Clean", "Clean Windows", "Floor Mats Vacuum", "Seat Vacuum", "Tyre Shine", "Full Car Trim", "Car Perfume")),
+            ServiceItem("Wash & Go", R.drawable.washgo, "R80 - R100", "20 min", "A fast and simple wash for when you’re on the move",
+                listOf("Full Exterior Wash", "Clean Windows", "Tyre shine", "Exterior Trim")),
+            ServiceItem("Interior Detailing", R.drawable.cardetailing, "R50 - R65", "45 min", "Deep interior clean for a spotless finish",
+                listOf("Full House Vacuum", "Clean Panels", "Dash Board Treatment", "Car Perfume")),
+            ServiceItem("Car Valet & Detailing", R.drawable.carvalet, "R450", "60 min", "Complete inside and out detailing service",
+                listOf("Pre Wash", "Full Exterior Wash", "Clean Windows", "Deep Vacuum", "Seats Vacuum & Deep Cleaned", "Floor Mats Vacuum & Deep Cleaned", "Detail Brushing", "Tyre Shine", "Trimming", "Car Perfume"))
         )
 
         LazyVerticalGrid(
@@ -217,7 +222,8 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable {
-                            Toast.makeText(context, "${service.name} clicked", Toast.LENGTH_SHORT).show()
+                            selectedService = service
+                            showDialog = true
                         }
                 ) {
                     Box(
@@ -235,17 +241,12 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = service.name,
-                        fontSize = 14.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
+                    Text(service.name, fontSize = 14.sp, color = Color.White, textAlign = TextAlign.Center)
                 }
             }
         }
 
-        // Popular Services Section
+        // --- Popular Services ---
         Text(
             text = "Popular Services",
             fontWeight = FontWeight.Bold,
@@ -254,16 +255,6 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp),
-            textAlign = TextAlign.Center
-        )
-
-        Text(
-            text = "Choose from our wide range of professional services",
-            color = Color.Gray,
-            fontSize = 14.sp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
             textAlign = TextAlign.Center
         )
 
@@ -278,10 +269,8 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                 }
         ) {
             Row(
-                modifier = Modifier
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
                     Text("CAR VALET & DETAILING", fontWeight = FontWeight.Bold, color = Color.White)
@@ -291,13 +280,125 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
         }
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // Bottom Navigation
         com.example.kleenpride.ui.components.BottomNavBar(currentScreen = "home")
+    }
+
+    if (showDialog && selectedService != null) {
+        ServiceDetailsDialog(
+            service = selectedService!!,
+            onDismiss = { showDialog = false },
+            onBookClick = {
+                showDialog = false
+                Toast.makeText(context, "Booking ${selectedService!!.name}", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 }
 
-data class ServiceItem(val name: String, val image: Int)
+// --- Models ---
+data class ServiceItem(
+    val name: String,
+    val image: Int,
+    val price: String,
+    val duration: String,
+    val description: String,
+    val included: List<String>
+)
+
+// --- Popup Dialog ---
+@Composable
+fun ServiceDetailsDialog(service: ServiceItem, onDismiss: () -> Unit, onBookClick: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        containerColor = Color(0xFF1B1B1B),
+        shape = RoundedCornerShape(16.dp),
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(8.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                ) {
+                    // Show the actual service image
+                    Image(
+                        painter = painterResource(id = service.image),
+                        contentDescription = service.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // Overlay for the price tag and car icon
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                            .padding(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.DirectionsCar,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(50.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(Color.White.copy(alpha = 0.25f), RoundedCornerShape(50))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = service.price,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(service.name, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.ExpandMore, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Text(service.duration, color = Color.Gray, fontSize = 14.sp)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(service.description, color = Color.Gray, fontSize = 14.sp, textAlign = TextAlign.Center)
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("What's Included:", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    service.included.forEach { item ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_check_circle),
+                                contentDescription = null,
+                                tint = LimeGreen,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(item, color = Color.Gray, fontSize = 14.sp)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onBookClick,
+                    colors = ButtonDefaults.buttonColors(containerColor = LimeGreen),
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                ) {
+                    Text("Book This Service", color = Color.Black, fontWeight = FontWeight.Bold)
+                }
+            }
+        },
+        confirmButton = {}
+    )
+}
 
 @Preview(showSystemUi = true)
 @Composable
