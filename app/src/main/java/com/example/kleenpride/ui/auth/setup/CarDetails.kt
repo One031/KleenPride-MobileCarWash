@@ -16,17 +16,20 @@ import androidx.navigation.NavController
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.viewmodel.AccountSetupViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kleenpride.ui.components.CustomTextField
 
 @Composable
 fun CarDetails(navController: NavController, accountViewModel: AccountSetupViewModel = viewModel()){
 
     // Local state bound to ViewModel
+    var carBrand by remember { mutableStateOf(accountViewModel.carBrand.value) }
     var carSize by remember { mutableStateOf(accountViewModel.carSize.value) }
     val favourites = accountViewModel.favourites
 
     var message by remember { mutableStateOf<String?>(null) }
 
-    val carSizes = listOf("Small" , "Medium", "Large")
+
+    val carSizes = listOf("Hatchback" , "Sedan", "SUV")
     val services = listOf("Wash & Go", "Interior Detail", "Pride Wash", "Pride Valet")
 
     Surface(color = Color.Black, modifier = Modifier.fillMaxSize()) {
@@ -47,6 +50,20 @@ fun CarDetails(navController: NavController, accountViewModel: AccountSetupViewM
                 color = Color.White,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(20.dp))
+
+            // Car Brand
+            CustomTextField(
+                value = carBrand,
+                onValueChange = {
+                    carBrand = it
+                    accountViewModel.carBrand.value = it
+                                },
+                label = "Car Brand",
+                leadingIcon = null,
+                isPassword = false,
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(20.dp))
 

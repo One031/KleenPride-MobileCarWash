@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.kleenpride.R
 import com.example.kleenpride.ui.theme.LimeGreen
+import com.example.kleenpride.viewmodel.UserDataViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val context = LocalContext.current
     val today = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault()).format(Date())
 
@@ -65,6 +67,8 @@ fun HomeScreen() {
     var selectedCar by remember { mutableStateOf("Hyundai") }
     var expandedCar by remember { mutableStateOf(false) }
     val cars = listOf("Hyundai", "Toyota", "BMW", "Mercedes", "Ford")
+    val userData by viewModel.userData.observeAsState()
+    val error by viewModel.error.observeAsState()
 
     // Added inset padding so that the UI moves below the system bar
     Column(
@@ -104,7 +108,7 @@ fun HomeScreen() {
                                 modifier = Modifier.size(16.dp)
                             )
                         }
-                        Text("Cape Town", color = Color.Gray, fontSize = 12.sp)
+                        Text(userData?.address?.ifEmpty {"No address"} ?: "Loading...", color = Color.Gray, fontSize = 12.sp)
                     }
                 }
 
@@ -112,7 +116,7 @@ fun HomeScreen() {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(horizontalAlignment = Alignment.End) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Honda", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(userData?.carBrand?.ifEmpty { "No car set" } ?: "Loading...", color = Color.White, fontWeight = FontWeight.Bold)
                             Icon(
                                 imageVector = Icons.Filled.ExpandMore,
                                 contentDescription = "Dropdown",
@@ -120,7 +124,7 @@ fun HomeScreen() {
                                 modifier = Modifier.size(16.dp)
                             )
                         }
-                        Text("4-wheeler", color = Color.Gray, fontSize = 12.sp)
+                        Text(userData?.carSize?.ifEmpty { "No car set" } ?: "Loading...", color = Color.Gray, fontSize = 12.sp)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
