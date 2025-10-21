@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.viewmodel.AccountSetupViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kleenpride.ui.theme.LimeGreen
 
 @Composable
 fun Preferences (navController: NavController, accountViewModel: AccountSetupViewModel = viewModel()) {
@@ -53,7 +54,10 @@ fun Preferences (navController: NavController, accountViewModel: AccountSetupVie
                         checked = accountViewModel.receiveReminders.value,
                         onCheckedChange = { accountViewModel.receiveReminders.value = it },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.Green)
+                            checkedThumbColor = Color.Green, //made it like the profile screen toggles
+                            checkedTrackColor = Color.Green.copy(alpha = 0.4f),
+                            uncheckedThumbColor = Color.Gray
+                        )
                     )
                 }
                 Row(
@@ -66,7 +70,9 @@ fun Preferences (navController: NavController, accountViewModel: AccountSetupVie
                         checked = accountViewModel.receivePromotions.value,
                         onCheckedChange = { accountViewModel.receivePromotions.value = it },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.Green
+                            checkedThumbColor = Color.Green,
+                            checkedTrackColor = Color.Green.copy(alpha = 0.4f),
+                            uncheckedThumbColor = Color.Gray
                         )
                     )
                 }
@@ -80,7 +86,9 @@ fun Preferences (navController: NavController, accountViewModel: AccountSetupVie
                         checked = accountViewModel.enableNotifications.value,
                         onCheckedChange = { accountViewModel.enableNotifications.value = it },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.Green
+                            checkedThumbColor = Color.Green,
+                            checkedTrackColor = Color.Green.copy(alpha = 0.4f),
+                            uncheckedThumbColor = Color.Gray
                         )
                     )
                 }

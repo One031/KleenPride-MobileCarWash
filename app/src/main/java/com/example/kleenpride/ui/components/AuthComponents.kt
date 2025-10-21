@@ -5,9 +5,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -27,6 +28,8 @@ fun CustomTextField(
     label: String,
     leadingIcon: @Composable (() -> Unit)? = null,
     isPassword: Boolean = false,
+    readOnly: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default, // ✅ Added this
     modifier: Modifier = Modifier
 ) {
     val textFieldColors = OutlinedTextFieldDefaults.colors(
@@ -38,7 +41,8 @@ fun CustomTextField(
         focusedLeadingIconColor = Color.White,
         unfocusedLeadingIconColor = Color.White,
         focusedLabelColor = Color.Gray,
-        unfocusedLabelColor = Color.Gray
+        unfocusedLabelColor = Color.Gray,
+
     )
 
     OutlinedTextField(
@@ -47,6 +51,8 @@ fun CustomTextField(
         label = { Text(label) },
         leadingIcon = leadingIcon,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        readOnly = readOnly,
+        keyboardOptions = keyboardOptions,
         modifier = modifier.fillMaxWidth(),
         colors = textFieldColors
     )
@@ -73,15 +79,17 @@ fun CustomButton(
     }
 }
 
+
+
 @Composable
 fun OrSeparator(modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.fillMaxWidth(0.7f).padding(vertical = 16.dp)
     ) {
-        Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.weight(1f))
+        HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = Color.Gray)
         Text(text = "OR", color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
-        Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.weight(1f))
+        HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = Color.Gray)
     }
 }
 

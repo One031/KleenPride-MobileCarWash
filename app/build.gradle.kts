@@ -44,6 +44,8 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
     // Material Icons
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation("androidx.compose.material:material-icons-core:1.7.0")
@@ -76,7 +78,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.androidx.core)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
