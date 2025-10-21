@@ -11,8 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,8 +34,9 @@ class AlertsActivity : ComponentActivity() {
 
 @Composable
 fun AlertsScreen() {
+    // Making the page reactive
     val alerts = remember {
-        listOf(
+        mutableStateListOf(
             Alert("Booking Confirmed", "Your Pride Wash booking is confirmed for Oct 18, 10:00 AM", "5 mins ago", true),
             Alert("Upcoming Service", "Your Car Valet is scheduled for tomorrow at 2:30 PM", "2 hours ago", true),
             Alert("Payment Reminder", "Payment of R150 is pending for your last service.", "Yesterday"),
@@ -69,7 +69,12 @@ fun AlertsScreen() {
                 color = LimeGreen,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable { /* Mark as read */ }
+                modifier = Modifier.clickable {
+                    // Update all highlighted alerts
+                    for (i in alerts.indices) {
+                        alerts[i] = alerts[i].copy(isHighlighted = false)
+                    }
+                }
             )
         }
 
@@ -80,37 +85,55 @@ fun AlertsScreen() {
             modifier = Modifier.padding(top = 6.dp, bottom = 16.dp)
         )
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            items(alerts) { alert ->
-                AlertCard(alert)
+        if (alerts.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No alerts available",
+                    color = Color.Gray,
+                    fontSize = 16.sp
+                )
             }
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1B1B1B))
-                        .clickable { /* Clear all */ }
-                        .padding(vertical = 14.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Clear All Alerts",
-                        color = LimeGreen,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(alerts) { alert ->
+                    AlertCard(alert)
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF1B1B1B))
+                            .clickable {
+                                // Clear all alerts
+                                alerts.clear()
+                            }
+                            .padding(vertical = 14.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Clear All Alerts",
+                            color = LimeGreen,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
 
-        // Navigation bar stays at the bottom
+        // Navigation bar stays fixed at the bottom
         BottomNavBar(currentScreen = "alerts")
     }
 }
