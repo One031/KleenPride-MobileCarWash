@@ -28,7 +28,7 @@ import java.util.*
 
 /**
  * Shown to the user to create new booking.
- * The user is prompted to fill in information shuc as service, Date & Time, And Location before creating the booking.
+ * The user is prompted to fill in information such as service, Date & Time, And Location before creating the booking.
  */
 
 // Color Constants
