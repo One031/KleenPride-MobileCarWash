@@ -47,7 +47,6 @@ fun MyGarageScreen(
         Vehicle("SUV", "Toyota", "RAV4", "2021"),
         Vehicle("Hatchback", "Volkswagen", "Golf", "2004")
     ),
-    onBack: () -> Unit = {}
 ) {
     var editVehicle by remember { mutableStateOf<Vehicle?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -97,7 +96,7 @@ fun MyGarageScreen(
                 // Vehicle list
                 vehicles.forEach { vehicle ->
                     var expanded by remember { mutableStateOf(false) }
-                    val cardHeight by animateDpAsState(if (expanded) 290.dp else 120.dp)
+                    val cardHeight by animateDpAsState(if (expanded) 320.dp else 120.dp)
 
                     Card(
                         modifier = Modifier
