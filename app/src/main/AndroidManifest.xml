@@ -31,6 +31,15 @@
             android:exported="true">
         </activity>
 
+        <activity android:name=".ui.profile.accinfo.AccountDetailsActivity" />
+
+        <activity android:name=".ui.profile.garage.MyGarageActivity" />
+
+        <activity android:name=".ui.profile.location.MyLocationsActivity" />
+
+
+
+
         <activity
             android:name=".ui.alerts.AlertsActivity"
             android:exported="true">

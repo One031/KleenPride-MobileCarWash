@@ -1,5 +1,6 @@
 package com.example.kleenpride.ui.profile
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,13 +27,12 @@ import androidx.compose.ui.graphics.Brush.Companion.horizontalGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.kleenpride.R
 import com.example.kleenpride.ui.components.CustomButton
@@ -40,7 +40,8 @@ import com.example.kleenpride.ui.theme.KleenPrideTheme
 import com.example.kleenpride.ui.theme.LimeGreen
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     var enableNotifications by remember { mutableStateOf(true) }
     var receivePromotions by remember { mutableStateOf(false) }
     var receiveReminders by remember { mutableStateOf(true) }
@@ -123,14 +124,36 @@ fun ProfileScreen(navController: NavController) {
                         }
                     },
                     buttonText = "Update Info",
-                    onClick = { /* TODO */ }
+                    onClick = {
+                        val intent = Intent(context, com.example.kleenpride.ui.profile.accinfo.AccountDetailsActivity::class.java)
+                        context.startActivity(intent)
+                    }
+
                 )
 
-                // My Garage Button, nav not active yet
-                MyGarageButton(onClick = { navController.navigate("profile.garage") })
+                // My Garage Button
+                MyGarageButton(
+                    onClick = {
+                        val intent = Intent(
+                            context,
+                            com.example.kleenpride.ui.profile.garage.MyGarageActivity::class.java
+                        )
+                        context.startActivity(intent)
+                    }
+                )
 
-                // Locations Button
-                LocationsButton(onClick = { navController.navigate("profile.location") })
+// Locations Button
+                LocationsButton(
+                    onClick = {
+                        val intent = Intent(
+                            context,
+                            com.example.kleenpride.ui.profile.location.MyLocationsActivity::class.java
+                        )
+                        context.startActivity(intent)
+                    }
+                )
+
+
 
                 // Preferences Section
                 RoundedSection(
@@ -290,6 +313,6 @@ fun LocationsButton(onClick: () -> Unit) {
 @Composable
 fun ProfileScreenPreview() {
     KleenPrideTheme {
-        ProfileScreen(navController = rememberNavController())
+        ProfileScreen()
     }
 }

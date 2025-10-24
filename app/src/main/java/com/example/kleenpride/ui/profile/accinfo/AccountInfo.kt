@@ -27,8 +27,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.kleenpride.ui.components.BottomNavBar
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.ui.components.CustomTextField
@@ -46,7 +44,7 @@ data class PaymentCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountDetailsScreen(navController: NavController) {
+fun AccountDetailsScreen() {
     var fullName by remember { mutableStateOf("Zion Cummings") }
     var email by remember { mutableStateOf("zion@example.com") }
     var password by remember { mutableStateOf("password123") }
@@ -411,6 +409,6 @@ fun AccountField(
 @Composable
 fun AccountDetailsScreenPreview() {
     KleenPrideTheme {
-        AccountDetailsScreen(navController = rememberNavController())
+        AccountDetailsScreen()
     }
 }

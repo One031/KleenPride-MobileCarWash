@@ -2,6 +2,7 @@ package com.example.kleenpride.ui.components
 
 import android.content.Intent
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -49,7 +50,7 @@ fun BottomNavBar(currentScreen: String) {
             },
             icon = {
                 Icon(
-                    Icons.Default.EventNote,
+                    Icons.AutoMirrored.Filled.EventNote,
                     contentDescription = "Booking",
                     tint = if (currentScreen == "booking") LimeGreen else Color.White
                 )
@@ -94,5 +95,6 @@ fun BottomNavBar(currentScreen: String) {
             },
             label = { Text("Profile", color = Color.White) }
         )
+
     }
 }
