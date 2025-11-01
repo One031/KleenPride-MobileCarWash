@@ -35,7 +35,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.kleenpride.R
 import com.example.kleenpride.ui.theme.LimeGreen
+import com.example.kleenpride.viewmodel.LocationViewModel
 import com.example.kleenpride.viewmodel.UserDataViewModel
+import com.example.kleenpride.viewmodel.VehicleViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -53,7 +55,10 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+               vehicleViewModel: VehicleViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+               locationViewModel: LocationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     val context = LocalContext.current
     val today = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault()).format(Date())
 
@@ -61,7 +66,23 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
     var showDialog by remember { mutableStateOf(false) }
 
     val userData by viewModel.userData.observeAsState()
+    val vehicles by vehicleViewModel.vehicles.observeAsState(emptyList())
+    val locations by locationViewModel.locations.observeAsState(emptyList())
     val error by viewModel.error.observeAsState()
+
+    LaunchedEffect(Unit) {
+        vehicleViewModel.loadVehicles()
+        locationViewModel.loadLocations()
+    }
+
+    // Find the default vehicle using the userData.defaultVehicleId
+    val defaultVehicle = vehicles.firstOrNull { it.id == userData?.defaultVehicleId } ?: vehicles.firstOrNull()
+
+    val defaultLocation = locations.firstOrNull {it.id == userData?.defaultAddressId} ?: locations.firstOrNull()
+
+    val carBrand = defaultVehicle?.make ?: "Loading..."
+    val carSize = defaultVehicle?.type ?: "Loading..."
+    val address = defaultLocation?.address ?: "Loading..."
 
     Column(
         modifier = Modifier
@@ -100,7 +121,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                             )
                         }
                         Text(
-                            userData?.address?.ifEmpty { "No address" } ?: "Loading...",
+                            address,
                             color = Color.Gray,
                             fontSize = 12.sp
                         )
@@ -111,7 +132,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                     Column(horizontalAlignment = Alignment.End) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                userData?.carBrand?.ifEmpty { "No car set" } ?: "Loading...",
+                                carBrand,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
@@ -123,7 +144,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                             )
                         }
                         Text(
-                            userData?.carSize?.ifEmpty { "No car set" } ?: "Loading...",
+                            carSize,
                             color = Color.Gray,
                             fontSize = 12.sp
                         )

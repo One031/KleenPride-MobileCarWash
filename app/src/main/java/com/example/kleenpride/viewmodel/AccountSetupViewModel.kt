@@ -75,16 +75,34 @@ class AccountSetupViewModel : ViewModel() {
             return
         }
 
-        val data = mapOf(
-            "preferredName" to preferredName.value,
-            "phoneNumber" to phoneNumber.value,
-            "address" to address.value
+        val userDocRef = firestore.collection("users").document(uid)
+        val locationCollRef = userDocRef.collection("locations")
+
+        // Create a new Location doc
+        val locationDocRef = locationCollRef.document()
+        val location = mapOf(
+            "id" to locationDocRef.id,
+            "name" to "Home",
+            "address" to address.value,
+            "comment" to ""
         )
 
-        firestore.collection("users").document(uid)
-            .update(data)
-            .addOnSuccessListener { _updateSuccess.value = true }
-            .addOnFailureListener { e -> _updateError.value = e.message }
+        // Save location
+        locationDocRef.set(location)
+            .addOnSuccessListener {
+                // Update user document
+                val userUpdate = mapOf(
+                    "preferredName" to preferredName.value,
+                    "phoneNumber" to phoneNumber.value,
+                    "defaultAddressId" to locationDocRef.id
+                )
+                userDocRef.update(userUpdate)
+                    .addOnSuccessListener { _updateSuccess.value = true }
+                    .addOnFailureListener { e -> _updateError.value = e.message }
+            }
+            .addOnFailureListener { e ->
+                _updateError.value = e.message
+            }
 
     }
 
@@ -98,17 +116,30 @@ class AccountSetupViewModel : ViewModel() {
             return
         }
 
-        val data = mapOf(
-            "carBrand" to carBrand.value,
-            "carSize" to carSize.value,
-            "favourites" to favourites.toList()
+       val userDocRef = firestore.collection("users").document(uid)
+        val vehicleCollRef  = userDocRef.collection("vehicles")
+
+        // Create a new vehicle doc
+        val vehicleDocRef = vehicleCollRef.document()
+        val vehicle = mapOf(
+            "id" to vehicleDocRef.id,
+            "type" to carSize.value,
+            "make" to carBrand.value
         )
 
-        firestore.collection("users").document(uid)
-            .update(data)
-            .addOnSuccessListener { _updateSuccess.value = true }
+        // Save vehicle
+        vehicleDocRef.set(vehicle)
+            .addOnSuccessListener {
+                // Update user document
+                val userUpdate = mapOf(
+                    "defaultVehicleId" to vehicleDocRef.id,
+                    "favourites" to favourites.toList()
+                )
+                userDocRef.update(userUpdate)
+                    .addOnSuccessListener { _updateSuccess.value = true }
+                    .addOnFailureListener { e -> _updateError.value = e.message }
+            }
             .addOnFailureListener { e -> _updateError.value = e.message }
-
     }
 
     /**

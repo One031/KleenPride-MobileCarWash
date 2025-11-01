@@ -18,13 +18,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.kleenpride.ui.components.BottomNavBar
+import com.example.kleenpride.ui.theme.LimeGreen
 import java.text.SimpleDateFormat
 import java.util.*
 
 // Color Constants
 private val BackgroundBlack = Color(0xFF0A0A0A)
 private val CardBlack = Color(0xFF1A1A1A)
-private val PrimaryGreen = Color(0xFF00FF88)
+private val PrimaryGreen = LimeGreen
 private val TextWhite = Color(0xFFFFFFFF)
 private val TextGray = Color(0xFFB0B0B0)
 private val BorderGray = Color(0xFF2A2A2A)
@@ -171,7 +172,7 @@ private fun HeaderSection() {
         Text(
             text = "New Booking",
             style = MaterialTheme.typography.headlineMedium,
-            color = PrimaryGreen,
+            color = LimeGreen,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))

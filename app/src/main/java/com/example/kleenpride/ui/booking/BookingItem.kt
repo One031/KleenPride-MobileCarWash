@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.data.booking.Booking
+import com.example.kleenpride.ui.theme.LimeGreen
 
 /**
  * Individual booking item in the list
@@ -32,12 +33,12 @@ fun BookingItem(booking: Booking) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "✔ ",
-                    color = Color(0xFF00C853),
+                    color = LimeGreen,
                     fontSize = 14.sp
                 )
                 Text(
                     text = booking.status,
-                    color = Color(0xFF00C853),
+                    color = LimeGreen,
                     fontSize = 14.sp
                 )
             }
@@ -65,7 +66,7 @@ fun BookingItem(booking: Booking) {
             Text(
                 text = booking.id,
                 color = Color.Gray,
-                fontSize = 13.sp
+                fontSize = 15.sp
             )
         }
     }
