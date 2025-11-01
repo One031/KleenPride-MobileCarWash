@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.ui.components.BottomNavBar
+import com.example.kleenpride.ui.theme.LimeGreen
 
 /**
  * Shown when the user has no active or past bookings.
@@ -74,7 +75,7 @@ fun EmptyBookingScreen(
                         .fillMaxWidth()
                         .height(60.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF00C853)
+                        containerColor = LimeGreen
                     ),
                     shape = RoundedCornerShape(16.dp)
                 ) {

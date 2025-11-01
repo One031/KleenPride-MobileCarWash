@@ -11,10 +11,9 @@ data class UserData(
     val lastName: String = "",
     val preferredName: String = "",
     val phoneNumber: String = "",
-    val address: String = "",
-    val carBrand: String = "",
-    val carSize: String = "",
     val favourites: List<String> = emptyList(),
+    val defaultVehicleId: String = "",
+    val defaultAddressId: String = ""
 )
 
 class UserDataViewModel : ViewModel() {
@@ -45,9 +44,8 @@ class UserDataViewModel : ViewModel() {
                         lastName = document.getString("lastName") ?: "",
                         preferredName = document.getString("preferredName") ?: "",
                         phoneNumber = document.getString("phoneNumber") ?: "",
-                        address = document.getString("address") ?: "",
-                        carBrand = document.getString("carBrand") ?: "",
-                        carSize = document.getString("carSize") ?: "",
+                        defaultAddressId = document.getString("defaultAddressId") ?: "",
+                        defaultVehicleId = document.getString("defaultVehicleId") ?: "",
                         favourites = document.get("favourites") as? List<String> ?: emptyList()
                     )
                     _userData.value = user

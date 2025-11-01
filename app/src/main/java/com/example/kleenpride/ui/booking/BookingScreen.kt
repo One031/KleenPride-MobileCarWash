@@ -6,6 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kleenpride.data.booking.Booking
 import com.example.kleenpride.ui.components.BottomNavBar
+import com.example.kleenpride.ui.theme.LimeGreen
 import com.example.kleenpride.viewmodel.BookingViewModel
 
 /**
@@ -68,21 +74,39 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel() ) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Booking Button
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF00C853))
-                .clickable { }
-                .padding(vertical = 16.dp),
-            contentAlignment = Alignment.Center
+                .padding(horizontal = 7.dp) // align with rest of layout
         ) {
-            Text(
-                text = "Create New Booking",
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
+            Button(
+                onClick =  { /* handle click */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = LimeGreen
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon (
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = "Create New Booking",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -147,22 +171,41 @@ fun BookingScreenPreviewContent(bookings: List<Booking>) {
         ActiveBookingCard(bookings.first())
         Spacer(modifier = Modifier.height(20.dp))
 
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF00C853))
-                .clickable { }
-                .padding(vertical = 16.dp),
-            contentAlignment = Alignment.Center
+                .padding(horizontal = 7.dp) // align with rest of layout
         ) {
-            Text(
-                text = "Create New Booking",
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
+            Button(
+                onClick =  { /* handle click */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = LimeGreen
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon (
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = "Create New Booking",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                }
+            }
         }
+
 
         Spacer(modifier = Modifier.height(20.dp))
 
