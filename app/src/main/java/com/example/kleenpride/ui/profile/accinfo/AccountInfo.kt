@@ -1,5 +1,6 @@
 package com.example.kleenpride.ui.profile.accinfo
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Brush.Companion.horizontalGradient
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -49,6 +51,7 @@ fun AccountDetailsScreen() {
     var email by remember { mutableStateOf("zion@example.com") }
     var password by remember { mutableStateOf("password123") }
 
+    val context = LocalContext.current
     val cards = remember {
         mutableStateListOf(
             PaymentCard("Zion Cummings", "4111111111117812", "12/26", "123", "Visa"),
@@ -199,7 +202,7 @@ fun AccountDetailsScreen() {
 
 
                 Button(
-                    onClick = { }, //saves acc info
+                    onClick = { Toast.makeText(context, "Saved Changes", Toast.LENGTH_SHORT).show() }, //saves acc info
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -287,6 +290,7 @@ fun EditCardSheet(
     onDelete: () -> Unit,
     onCancel: () -> Unit
 ) {
+    val context = LocalContext.current
     var nameOnCard by remember { mutableStateOf(card.nameOnCard) }
     var cardNumber by remember { mutableStateOf(card.cardNumber) }
     var expiry by remember { mutableStateOf(card.expiryDate) }
@@ -335,7 +339,8 @@ fun EditCardSheet(
         Spacer(modifier = Modifier.height(20.dp))
         CustomButton(
             text = "Save",
-            onClick = { onSave(PaymentCard(nameOnCard, cardNumber, expiry, cvv, brand)) },
+            onClick = { onSave(PaymentCard(nameOnCard, cardNumber, expiry, cvv, brand))
+                        Toast.makeText(context,"Card Added", Toast.LENGTH_SHORT).show() },
             containerColor = LimeGreen,
             contentColor = Color.Black,
             modifier = Modifier.fillMaxWidth()
