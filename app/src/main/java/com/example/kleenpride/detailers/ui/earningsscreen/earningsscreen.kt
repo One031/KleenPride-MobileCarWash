@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Notifications
-import com.example.kleenpride.detailers.ui.components.BottomNavBar
 
 data class Payment(val date: String, val jobs: String, val amount: String, val status: String)
 
@@ -28,8 +27,6 @@ fun EarningsScreen() {
     val neonGreen = Color(0xFF00FF66)
     val softGray = Color(0xFFCCCCCC)
     val orange = Color(0xFFFFA500)
-
-    var selectedItem by remember { mutableStateOf("Earnings") }
 
     val payments = listOf(
         Payment("Oct 29", "3 jobs", "R4,200", "Pending"),
@@ -43,125 +40,121 @@ fun EarningsScreen() {
             .fillMaxSize()
             .background(darkBackground)
     ) {
-        // Main Content
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("My Earnings", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = neonGreen,
-                    modifier = Modifier.size(24.dp)
-                )
+            item {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("My Earnings", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifications",
+                        tint = neonGreen,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Top Stat Cards
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatCard("Today", "R4,200", cardBackground, neonGreen)
-                StatCard("This Week", "R22,800", cardBackground, neonGreen)
+            item {
+                // Stat Cards Row 1
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    StatCard("Today", "R4,200", cardBackground, neonGreen)
+                    StatCard("This Week", "R22,800", cardBackground, neonGreen)
+                }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatCard("This Month", "R89,350", cardBackground, neonGreen)
-                StatCard("All Time", "R345,600", cardBackground, neonGreen)
+            item {
+                // Stat Cards Row 2
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    StatCard("This Month", "R89,350", cardBackground, neonGreen)
+                    StatCard("All Time", "R345,600", cardBackground, neonGreen)
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                // Weekly Breakdown
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = cardBackground),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Weekly Breakdown", color = Color.White, fontWeight = FontWeight.Bold)
+                            Icon(
+                                imageVector = Icons.Default.BarChart,
+                                contentDescription = "Breakdown",
+                                tint = neonGreen
+                            )
+                        }
 
-            // Weekly Breakdown
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = cardBackground),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Weekly Breakdown", color = Color.White, fontWeight = FontWeight.Bold)
-                        Icon(
-                            imageVector = Icons.Default.BarChart,
-                            contentDescription = "Breakdown",
-                            tint = neonGreen
-                        )
-                    }
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                        val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
+                        val earnings = listOf("R2,910", "R4,365", "R5,820", "R5,545", "R4,200")
 
-                    val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
-                    val earnings = listOf("R2,910", "R4,365", "R5,820", "R5,545", "R4,200")
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        days.zip(earnings).forEach { (day, value) ->
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(50.dp)
-                                        .height(20.dp)
-                                        .background(neonGreen, RoundedCornerShape(4.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(value, fontSize = 10.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            days.zip(earnings).forEach { (day, value) ->
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(50.dp)
+                                            .height(20.dp)
+                                            .background(neonGreen, RoundedCornerShape(4.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            value,
+                                            fontSize = 10.sp,
+                                            color = Color.Black,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(day, color = softGray, fontSize = 12.sp)
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(day, color = softGray, fontSize = 12.sp)
                             }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Recent Payments
-            Text("Recent Payments", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn {
-                items(payments) { payment ->
-                    PaymentCard(payment, cardBackground, neonGreen, orange)
-                }
+            item {
+                Text("Recent Payments", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
 
-            Spacer(modifier = Modifier.height(70.dp))
-        }
+            items(payments) { payment ->
+                PaymentCard(payment, cardBackground, neonGreen, orange)
+            }
 
-        // Bottom Navigation Bar
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-        ) {
-            BottomNavBar(
-                selectedItem = selectedItem,
-                onItemSelected = { selectedItem = it }
-            )
+            item {
+                Spacer(modifier = Modifier.height(70.dp))
+            }
         }
     }
 }
+
 
 @Composable
 fun StatCard(title: String, amount: String, background: Color, accent: Color) {

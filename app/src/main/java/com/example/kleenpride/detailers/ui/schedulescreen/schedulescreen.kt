@@ -13,11 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.kleenpride.detailers.ui.components.BottomNavBar
+import androidx.compose.foundation.rememberScrollState
 
 @Composable
 fun ScheduleScreen() {
@@ -26,9 +25,8 @@ fun ScheduleScreen() {
     val neonGreen = Color(0xFF00FF66)
     val softGray = Color(0xFFCCCCCC)
     val mutedGreen = Color(0xFF1C2C1C)
+    rememberScrollState()
 
-
-    var selectedItem by remember { mutableStateOf("Schedule") }
 
     val jobs = listOf(
         JobItem("Sarah Johnson", "Premium Detail", "Honda Civic 2022", "10:00 AM • 4–5 hours", "123 Oak Street, Downtown", "R2,750", "3.7 km", "Today", true),
@@ -109,18 +107,6 @@ fun ScheduleScreen() {
                     JobCard(job, cardBackground, neonGreen, softGray)
                 }
             }
-        }
-
-        // Fixed the bottom navbar to the bottom
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-        ) {
-            BottomNavBar(
-                selectedItem = selectedItem,
-                onItemSelected = { selectedItem = it }
-            )
         }
 
     }

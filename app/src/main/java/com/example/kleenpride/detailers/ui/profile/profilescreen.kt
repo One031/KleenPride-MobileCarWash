@@ -15,7 +15,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.kleenpride.detailers.ui.components.BottomNavBar
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import androidx.compose.foundation.clickable
+
 
 @Composable
 fun ProfileScreen() {
@@ -24,8 +29,10 @@ fun ProfileScreen() {
     val neonGreen = Color(0xFF00FF66)
     val softGray = Color(0xFFB0B0B0)
     val dangerRed = Color(0xFFFF3B30)
+    val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
-    var selectedItem by remember { mutableStateOf("Profile") }
+
 
     Box(
         modifier = Modifier
@@ -36,6 +43,7 @@ fun ProfileScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
             // Header
@@ -45,14 +53,7 @@ fun ProfileScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("My Profile", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(neonGreen, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("L", color = Color.Black, fontWeight = FontWeight.Bold)
-                }
+
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -116,20 +117,21 @@ fun ProfileScreen() {
             // Buttons
             ProfileAction(Icons.Default.Edit, "Edit Profile", neonGreen)
             ProfileAction(Icons.Default.Settings, "Settings", neonGreen)
-            ProfileAction(Icons.Default.Logout, "Log Out", dangerRed)
+
+            ProfileAction(
+                icon = Icons.Default.Logout,
+                text = "Log Out",
+                color = dangerRed,
+                onClick = {
+                    val intent = Intent(context, com.example.kleenpride.ui.auth.LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    context.startActivity(intent)
+                }
+            )
 
             Spacer(modifier = Modifier.height(70.dp)) // Prevent overlap with bottom nav
         }
 
-        // Bottom NavBar
-        Box(
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            BottomNavBar(
-                selectedItem = selectedItem,
-                onItemSelected = { selectedItem = it }
-            )
-        }
     }
 }
 
@@ -174,13 +176,16 @@ fun ProfileItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: Str
 }
 
 @Composable
-fun ProfileAction(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, color: Color) {
+fun ProfileAction(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, color: Color, onClick: (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
             .background(Color(0xFF141414), RoundedCornerShape(12.dp))
-            .padding(12.dp),
+            .padding(12.dp)
+            .then(
+                if (onClick != null) Modifier.clickable { onClick() } else Modifier
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))

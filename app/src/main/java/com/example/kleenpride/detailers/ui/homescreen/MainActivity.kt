@@ -5,9 +5,8 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -21,6 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.detailers.ui.components.BottomNavBar
 import com.example.kleenpride.detailers.ui.profile.ProfileScreen
+import com.example.kleenpride.detailers.ui.earningsscreen.EarningsScreen
+import com.example.kleenpride.detailers.ui.schedulescreen.ScheduleScreen
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.navigationBarsPadding
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +62,9 @@ fun DetailerMainScreen() {
 
         // --- Bottom Navigation Bar ---
         Box(
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
         ) {
             BottomNavBar(
                 selectedItem = selectedTab,
@@ -68,39 +75,17 @@ fun DetailerMainScreen() {
 }
 
 @Composable
-fun ScheduleScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0A0A0A)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Schedule Screen (Coming Soon)", color = Color.White)
-    }
-}
-
-@Composable
-fun EarningsScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0A0A0A)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Earnings Screen (Coming Soon)", color = Color.White)
-    }
-}
-
-@Composable
 fun DetailerDashboardScreen() {
     val darkBackground = Color(0xFF0A0A0A)
     val cardBackground = Color(0xFF141414)
     val neonGreen = Color(0xFF00FF66)
     val softGray = Color(0xFFCCCCCC)
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .background(darkBackground)
             .padding(16.dp)
     ) {
@@ -171,9 +156,8 @@ fun DetailerDashboardScreen() {
             Booking("Bobby Valentino", "Basic Detail", "Nissan 200SX 1992", "2:30 PM - 2-3 hours", "456 Maple Ave, West End", "R79"),
             Booking("Raphael Saadiq", "Ultimate Detail", "Honda Civic 1996", "9:00 AM - 6-8 hours", "789 Pine Road, Riverside", "R249")
         )
-
-        LazyColumn {
-            items(bookings) { booking ->
+        Column {
+            bookings.forEach { booking ->
                 BookingCard(booking, cardBackground, neonGreen)
             }
         }
@@ -190,8 +174,8 @@ fun DetailerDashboardScreen() {
             CompletedJob("Chris Taylor", "Ultimate Detail", "+R249", "Yesterday")
         )
 
-        LazyColumn {
-            items(completed) { job ->
+        Column {
+            completed.forEach { job ->
                 CompletedJobCard(job, cardBackground, neonGreen)
             }
         }
@@ -248,7 +232,7 @@ fun BookingCard(booking: Booking, background: Color, accent: Color) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.DirectionsCar, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("${booking.car}", color = Color.Gray, fontSize = 12.sp)
+                Text(booking.car, color = Color.Gray, fontSize = 12.sp)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Schedule, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
