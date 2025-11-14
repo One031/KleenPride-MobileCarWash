@@ -60,7 +60,7 @@ fun CarDetails(navController: NavController, accountViewModel: AccountSetupViewM
                     carBrand = it
                     accountViewModel.carBrand.value = it
                                 },
-                label = "Car Brand",
+                label = "Car Make",
                 leadingIcon = null,
                 isPassword = false,
                 modifier = Modifier.fillMaxWidth()

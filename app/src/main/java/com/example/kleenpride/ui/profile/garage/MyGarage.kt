@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -31,33 +32,33 @@ import com.example.kleenpride.ui.components.BottomNavBar
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.ui.components.CustomTextField
 import com.example.kleenpride.ui.theme.LimeGreen
+import com.example.kleenpride.viewmodel.Vehicle
+import com.example.kleenpride.viewmodel.VehicleViewModel
 import kotlinx.coroutines.launch
 
-data class Vehicle(
-    var type: String,
-    var make: String,
-    var model: String,
-    var year: String = ""
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyGarageScreen(
-    vehicles: MutableList<Vehicle> = mutableListOf(
-        Vehicle("SUV", "Toyota", "RAV4", "2021"),
-        Vehicle("Hatchback", "Volkswagen", "Golf", "2004")
-    ),
+   viewModel: VehicleViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+
+    val vehicles by viewModel.vehicles.observeAsState(emptyList())
+    val error by viewModel.error.observeAsState()
     var editVehicle by remember { mutableStateOf<Vehicle?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+
+    // load from firestore
+    LaunchedEffect(Unit) {
+        viewModel.loadVehicles()
+    }
 
     Surface(
         color = Color.Black,
         modifier = Modifier.fillMaxSize()
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -166,7 +167,7 @@ fun MyGarageScreen(
 
                                         Column {
                                             Text(
-                                                text = "${vehicle.make} ${vehicle.model}",
+                                                text = vehicle.make,
                                                 color = Color.White,
                                                 fontSize = 20.sp,
                                                 fontWeight = FontWeight.Bold
@@ -200,15 +201,13 @@ fun MyGarageScreen(
 
                                         VehicleInfoRow(label = "Type", value = vehicle.type)
                                         VehicleInfoRow(label = "Make", value = vehicle.make)
-                                        VehicleInfoRow(label = "Model", value = vehicle.model)
-                                        VehicleInfoRow(label = "Year", value = vehicle.year)
 
                                         Spacer(modifier = Modifier.height(8.dp))
 
                                         CustomButton(
                                             text = "Edit Vehicle",
                                             onClick = {
-                                                editVehicle = vehicle
+                                                editVehicle = vehicle.copy()
                                                 coroutineScope.launch { sheetState.show() }
                                             },
                                             containerColor = LimeGreen,
@@ -226,7 +225,7 @@ fun MyGarageScreen(
 
                 Button(
                     onClick = {
-                        editVehicle = Vehicle("", "", "", "")
+                        editVehicle = Vehicle("", "", "")
                         coroutineScope.launch { sheetState.show() }
                     },
                     modifier = Modifier
@@ -287,16 +286,26 @@ fun MyGarageScreen(
                     editVehicle = null
                 },
                 onDelete = {
-                    vehicles.remove(editVehicle)
+                    // call viewModel to delete
+                    editVehicle?.let { viewModel.deleteVehicle(it) };
                     coroutineScope.launch { sheetState.hide() }
                     editVehicle = null
                 },
                 onSave = { newVehicle ->
-                    if (!vehicles.contains(newVehicle)) vehicles.add(newVehicle)
+                    // save via ViewModel (add or update)
+                    viewModel.saveVehicle(newVehicle)
                     coroutineScope.launch { sheetState.hide() }
                     editVehicle = null
                 }
             )
+        }
+    }
+
+    error?.let {
+        LaunchedEffect(it) {
+            coroutineScope.launch {
+                sheetState.hide()
+            }
         }
     }
 }
@@ -323,9 +332,6 @@ fun EditVehicleSheetContent(
 ) {
     var type by remember { mutableStateOf(vehicle.type) }
     var make by remember { mutableStateOf(vehicle.make) }
-    var model by remember { mutableStateOf(vehicle.model) }
-    var year by remember { mutableStateOf(vehicle.year) }
-
     val vehicleTypes = listOf("SUV", "Sedan", "Hatchback")
     var expanded by remember { mutableStateOf(false) }
 
@@ -385,9 +391,6 @@ fun EditVehicleSheetContent(
         Spacer(modifier = Modifier.height(12.dp))
         CustomTextField(value = make, onValueChange = { make = it }, label = "Make")
         Spacer(modifier = Modifier.height(12.dp))
-        CustomTextField(value = model, onValueChange = { model = it }, label = "Model")
-        Spacer(modifier = Modifier.height(12.dp))
-        CustomTextField(value = year, onValueChange = { year = it }, label = "Year")
         Spacer(modifier = Modifier.height(24.dp))
 
         CustomButton(
@@ -395,8 +398,6 @@ fun EditVehicleSheetContent(
             onClick = {
                 vehicle.type = type
                 vehicle.make = make
-                vehicle.model = model
-                vehicle.year = year
                 onSave(vehicle)
             },
             containerColor = LimeGreen,
@@ -426,11 +427,5 @@ fun EditVehicleSheetContent(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MyGarageScreenPreview() {
-    MyGarageScreen(
-        vehicles = mutableListOf(
-            Vehicle("SUV", "Toyota", "RAV4", "2021"),
-            Vehicle("Hatchback", "Volkswagen", "Golf", "2004"),
-            Vehicle("Sedan", "Honda", "Accord", "2019")
-        )
-    )
+    MyGarageScreen()
 }

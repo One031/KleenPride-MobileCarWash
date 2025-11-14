@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -27,24 +28,25 @@ import com.example.kleenpride.ui.components.CustomTextField
 import com.example.kleenpride.ui.theme.LimeGreen
 import kotlinx.coroutines.launch
 import com.example.kleenpride.ui.components.BottomNavBar
+import com.example.kleenpride.viewmodel.LocationViewModel
+import com.example.kleenpride.viewmodel.Location
 
-data class Location(
-    var name: String,
-    var address: String,
-    var comment: String = ""
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyLocationsScreen(
-    locations: MutableList<Location> = mutableListOf(
-        Location("Home", "123 Maple Street", "Main entrance gate"),
-        Location("Work", "45 Commerce Ave", "3rd level parking")
-    ),
+    viewModel: LocationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+    val locations by viewModel.locations.observeAsState(emptyList())
+    val error by viewModel.error.observeAsState()
     var editLocation by remember { mutableStateOf<Location?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+
+    // Launched from firestore
+    LaunchedEffect(Unit) {
+        viewModel.loadLocations()
+    }
 
     Scaffold(
         containerColor = Color.Black,
@@ -94,6 +96,7 @@ fun MyLocationsScreen(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
+                // Location list
                 locations.forEach { location ->
                     var expanded by remember { mutableStateOf(false) }
                     val cardHeight by animateDpAsState(if (expanded) 150.dp else 100.dp)
@@ -175,7 +178,7 @@ fun MyLocationsScreen(
                                             DropdownMenuItem(
                                                 text = { Text("Edit", color = LimeGreen) },
                                                 onClick = {
-                                                    editLocation = location
+                                                    editLocation = location.copy()
                                                     coroutineScope.launch { sheetState.show() }
                                                     showMenu = false
                                                 }
@@ -183,7 +186,7 @@ fun MyLocationsScreen(
                                             DropdownMenuItem(
                                                 text = { Text("Delete", color = Color.Red) },
                                                 onClick = {
-                                                    locations.remove(location)
+                                                    viewModel.deleteLocation(location)
                                                     showMenu = false
                                                 }
                                             )
@@ -265,12 +268,13 @@ fun MyLocationsScreen(
                     editLocation = null
                 },
                 onDelete = {
-                    locations.remove(editLocation)
+                   viewModel.deleteLocation(editLocation!!)
                     coroutineScope.launch { sheetState.hide() }
                     editLocation = null
                 },
                 onSave = { newLocation ->
-                    if (!locations.contains(newLocation)) locations.add(newLocation)
+                   if (newLocation.name.isBlank()) newLocation.name = "Home"
+                    viewModel.saveLocation(newLocation)
                     coroutineScope.launch { sheetState.hide() }
                     editLocation = null
                 }
@@ -348,11 +352,5 @@ fun EditLocationSheet(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MyLocationsScreenPreview() {
-    MyLocationsScreen(
-        locations = mutableListOf(
-            Location("Home", "123 Maple Street", "Use side gate"),
-            Location("Work", "45 Commerce Ave", "3rd level parking"),
-            Location("Parents", "678 Oak Lane", "Ring bell twice")
-        )
-    )
+    MyLocationsScreen()
 }

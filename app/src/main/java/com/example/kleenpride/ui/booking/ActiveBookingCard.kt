@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.data.booking.Booking
+import com.example.kleenpride.ui.theme.LimeGreen
 
 @Composable
 fun ActiveBookingCard (booking: Booking){
@@ -24,7 +25,7 @@ fun ActiveBookingCard (booking: Booking){
     ) {
         Text(
             text = "Active Booking",
-            color = Color(0xFF00C853),
+            color = Color(0xFF32CD32),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -66,7 +67,7 @@ fun ActiveBookingCard (booking: Booking){
 
             Text(
                 text = "Track booking →",
-                color = Color(0xFF00C853),
+                color = LimeGreen,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.align(Alignment.CenterVertically)
