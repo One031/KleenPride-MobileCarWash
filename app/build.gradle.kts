@@ -63,6 +63,9 @@ dependencies {
     // For Chrome Custom Tabs (PayFast redirect)
     implementation("androidx.browser:browser:1.8.0")
 
+    // Firebase Storage for profile images
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+
     implementation("com.google.android.gms:play-services-tasks:18.0.3")
     implementation("com.google.firebase:firebase-analytics")
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
