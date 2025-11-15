@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,7 +28,6 @@ import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.ui.components.CustomTextField
 import com.example.kleenpride.ui.components.OrSeparator
 import com.example.kleenpride.ui.theme.KleenPrideTheme
-import com.example.kleenpride.ui.theme.LimeGreen
 import com.example.kleenpride.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -196,7 +194,7 @@ fun LoginScreenUI(
                     }
                 },
                 containerColor = Color.Green,
-                contentColor = Color.Black
+                contentColor = Color.Black,
             )
 
             // Forgot password small link - uses ViewModel.resetPassword if email provided
