@@ -2,6 +2,7 @@ package com.example.kleenpride.ui.profile
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -34,25 +35,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.kleenpride.R
+import com.example.kleenpride.ui.components.BottomNavBar
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.ui.theme.KleenPrideTheme
 import com.example.kleenpride.ui.theme.LimeGreen
+import com.example.kleenpride.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen( viewModel: ProfileViewModel = viewModel()) {
     val context = LocalContext.current
-    var enableNotifications by remember { mutableStateOf(true) }
-    var receivePromotions by remember { mutableStateOf(false) }
-    var receiveReminders by remember { mutableStateOf(true) }
 
-    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    val email = viewModel.email.value
+    val isUploadingImage = viewModel.isUploadingImage.value
+    val profileImageUri = viewModel.profileImageUrl.value
+    val initials = viewModel.initials.value
 
-    val imagePickerLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            profileImageUri = uri
+   val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.uploadProfileImage(
+                uri = it,
+                onSuccess = {
+                    Toast.makeText(context, "Profile image updated", Toast.LENGTH_SHORT).show()
+                },
+                onError = { error ->
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                }
+            )
         }
+   }
+
 
     Surface(
         color = Color.Black,
@@ -64,7 +78,8 @@ fun ProfileScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(30.dp),
+                    .padding(30.dp)
+                    .padding(bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 // Greeting Row
@@ -74,7 +89,9 @@ fun ProfileScreen() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Hi, Zion! 👋",
+                        text = "Hi, ${
+                            viewModel.fullName.value.split(" ").firstOrNull() ?: "User"
+                        }!👋",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 40.sp
@@ -84,10 +101,20 @@ fun ProfileScreen() {
                             .size(70.dp)
                             .clip(CircleShape)
                             .background(Color.DarkGray.copy(alpha = 0.5f))
-                            .clickable { imagePickerLauncher.launch("image/*") },
+                            .border(2.dp, LimeGreen, CircleShape)
+                            .clickable {
+                                if (!isUploadingImage) {
+                                    imagePickerLauncher.launch("image/*")
+                                }
+                            },
                         contentAlignment = Alignment.Center
                     ) {
-                        if (profileImageUri != null) {
+                        if (isUploadingImage) {
+                            CircularProgressIndicator(
+                                color = LimeGreen,
+                                modifier = Modifier.size(30.dp)
+                            )
+                        } else if (profileImageUri != null) {
                             Image(
                                 painter = rememberAsyncImagePainter(profileImageUri),
                                 contentDescription = "Profile Image",
@@ -96,7 +123,7 @@ fun ProfileScreen() {
                             )
                         } else {
                             Text(
-                                text = "ZC",
+                                text = initials,
                                 color = Color.White,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold
@@ -108,7 +135,14 @@ fun ProfileScreen() {
                 HorizontalDivider(
                     thickness = 2.dp,
                     color = LimeGreen.copy(alpha = 0.4f),
-                    modifier = Modifier.background(horizontalGradient(listOf(LimeGreen, Color(0xFFB2FF59))))
+                    modifier = Modifier.background(
+                        horizontalGradient(
+                            listOf(
+                                LimeGreen,
+                                Color(0xFFB2FF59)
+                            )
+                        )
+                    )
                 )
 
                 // Account Info Section
@@ -119,14 +153,17 @@ fun ProfileScreen() {
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            InfoRow(Icons.Filled.Email, "zion@example.com")
+                            InfoRow(Icons.Filled.Email, email)
                             InfoRow(Icons.Filled.Lock, "••••••••")
                             InfoRow(Icons.Filled.AccountBalanceWallet, "Payment Details")
                         }
                     },
                     buttonText = "Update Info",
                     onClick = {
-                        val intent = Intent(context, com.example.kleenpride.ui.profile.accinfo.AccountDetailsActivity::class.java)
+                        val intent = Intent(
+                            context,
+                            com.example.kleenpride.ui.profile.accinfo.AccountDetailsActivity::class.java
+                        )
                         context.startActivity(intent)
                     }
                 )
@@ -161,48 +198,91 @@ fun ProfileScreen() {
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            PreferenceToggle("Enable Notifications", enableNotifications) { enableNotifications = it }
-                            PreferenceToggle("Receive Promotions", receivePromotions) { receivePromotions = it }
-                            PreferenceToggle("Receive Reminders", receiveReminders) { receiveReminders = it }
+                            PreferenceToggle(
+                                "Enable Notifications",
+                                viewModel.enableNotifications.value
+                            ) {
+                                viewModel.enableNotifications.value = it
+                                viewModel.savePreferences(
+                                    onSuccess = {
+                                        Toast.makeText(
+                                            context,
+                                            "Preference saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                )
+                            }
+                            PreferenceToggle(
+                                "Receive Promotions",
+                                viewModel.receivePromotions.value
+                            ) {
+                                viewModel.receivePromotions.value = it
+                                viewModel.savePreferences(
+                                    onSuccess = {
+                                        Toast.makeText(
+                                            context,
+                                            "Preference saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                )
+                            }
+                            PreferenceToggle(
+                                "Receive Reminders",
+                                viewModel.receiveReminders.value
+                            ) {
+                                viewModel.receiveReminders.value = it
+                                viewModel.savePreferences(
+                                    onSuccess = {
+                                        Toast.makeText(
+                                            context,
+                                            "Preference saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                )
+                            }
                         }
-                    },
-                    buttonText = "Save Preferences",
-                    onClick = { /* TODO */ }
+                    }
                 )
 
-                // Save Changes
-                CustomButton(
-                    text = "Save Changes",
-                    onClick = { /* TODO */ },
-                    containerColor = LimeGreen,
-                    contentColor = Color.Black,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                // Log Out Button (Updated)
-                CustomButton(
-                    text = "Log Out",
+                // Log Out Button
+                Button(
                     onClick = {
-                        val intent = Intent(context, com.example.kleenpride.ui.auth.LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        viewModel.signOut()
+                        val intent = Intent(
+                            context,
+                            com.example.kleenpride.ui.auth.LoginActivity::class.java
+                        )
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         context.startActivity(intent)
                     },
-                    containerColor = Color(0xFFFF3B30), // Danger red like detailers profile
-                    contentColor = Color.White,
-                    modifier = Modifier.fillMaxWidth(),
-                    icon = Icons.Default.Logout // Same icon as detailers profile
-                )
-
-                Spacer(modifier = Modifier.height(80.dp)) // leave space for nav bar
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF3B30)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Logout,
+                        contentDescription = "Logout",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Log Out", color = Color.White, fontWeight = FontWeight.Bold)
+                }
             }
-
             // Bottom Navigation
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
             ) {
-                com.example.kleenpride.ui.components.BottomNavBar(currentScreen = "profile")
+                BottomNavBar(currentScreen = "profile")
             }
         }
     }
@@ -243,7 +323,7 @@ fun InfoRow(icon: ImageVector, text: String) {
 }
 
 @Composable
-fun RoundedSection(title: String, content: @Composable ColumnScope.() -> Unit, buttonText: String, onClick: () -> Unit) {
+fun RoundedSection(title: String, content: @Composable ColumnScope.() -> Unit, buttonText: String? = null, onClick: (() -> Unit) ? = null) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -254,12 +334,17 @@ fun RoundedSection(title: String, content: @Composable ColumnScope.() -> Unit, b
     ) {
         Text(title, color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
         content()
-        CustomButton(
-            text = buttonText,
-            onClick = onClick,
-            containerColor = LimeGreen,
-            contentColor = Color.Black,
-        )
+
+        if (buttonText != null && onClick != null) {
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = LimeGreen)
+            ) {
+                Text(buttonText, color = Color.Black, fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }
 
