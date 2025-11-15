@@ -212,7 +212,7 @@ fun MyGarageScreen(
                                             },
                                             containerColor = LimeGreen,
                                             contentColor = Color.Black,
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth(),
                                         )
                                     }
                                 }
@@ -402,7 +402,7 @@ fun EditVehicleSheetContent(
             },
             containerColor = LimeGreen,
             contentColor = Color.Black,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
         CustomButton(
@@ -410,7 +410,7 @@ fun EditVehicleSheetContent(
             onClick = onDelete,
             containerColor = Color.Red,
             contentColor = Color.White,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
         CustomButton(
@@ -418,7 +418,7 @@ fun EditVehicleSheetContent(
             onClick = onDismiss,
             containerColor = Color.Gray,
             contentColor = Color.White,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(16.dp))
     }

@@ -1,7 +1,6 @@
 package com.example.kleenpride.ui.auth.setup
 
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -19,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.kleenpride.R
@@ -32,7 +30,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.kleenpride.viewmodel.AccountSetupViewModel
 
 /**
@@ -157,7 +154,7 @@ fun BasicInfo(navController: NavController, authViewModel: AuthViewModel = viewM
                     }
                 },
                 containerColor = Color.Green,
-                contentColor = Color.Black
+                contentColor = Color.Black,
             )
 
             message?.let { Text(it, color = Color.Red, modifier = Modifier.padding(top = 10.dp)) }

@@ -59,7 +59,7 @@ fun PersonalInfo(navController: NavController, accountViewModel: AccountSetupVie
                     onClick = { navController.popBackStack() },
                     containerColor = Color.Gray,
                     contentColor = Color.Black,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Spacer(Modifier.width(16.dp))
 
@@ -77,7 +77,7 @@ fun PersonalInfo(navController: NavController, accountViewModel: AccountSetupVie
                     },
                     containerColor = Color.Green,
                     contentColor = Color.Black,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
 

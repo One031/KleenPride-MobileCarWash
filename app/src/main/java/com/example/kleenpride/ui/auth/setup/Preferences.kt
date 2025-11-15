@@ -2,7 +2,6 @@ package com.example.kleenpride.ui.auth.setup
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,7 +13,6 @@ import androidx.navigation.NavController
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.viewmodel.AccountSetupViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.kleenpride.ui.theme.LimeGreen
 
 @Composable
 fun Preferences (navController: NavController, accountViewModel: AccountSetupViewModel = viewModel()) {
@@ -102,7 +100,7 @@ fun Preferences (navController: NavController, accountViewModel: AccountSetupVie
                     onClick = { navController.popBackStack() },
                     containerColor = Color.Gray,
                     contentColor = Color.Black,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Spacer(Modifier.width(16.dp))
                 CustomButton(
@@ -117,7 +115,7 @@ fun Preferences (navController: NavController, accountViewModel: AccountSetupVie
                     },
                     containerColor = Color.Green,
                     contentColor = Color.Black,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
 

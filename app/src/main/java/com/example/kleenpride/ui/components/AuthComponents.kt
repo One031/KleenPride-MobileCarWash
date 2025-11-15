@@ -1,6 +1,7 @@
 package com.example.kleenpride.ui.components
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -16,10 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.kleenpride.ui.theme.LimeGreen
 
 @Composable
 fun CustomTextField(
@@ -55,6 +59,50 @@ fun CustomTextField(
         keyboardOptions = keyboardOptions,
         modifier = modifier.fillMaxWidth(),
         colors = textFieldColors
+    )
+}
+
+@Composable
+fun CustomTextFieldCard(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    enabled: Boolean = true,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = true
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = Color.Gray) },
+        placeholder = if (placeholder.isNotEmpty()) {
+            { Text(placeholder, color = Color.Gray.copy(alpha = 0.5f)) }
+        } else null,
+        textStyle = LocalTextStyle.current.copy(color = Color.White),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent,
+            disabledBorderColor = Color.Transparent,
+            cursorColor = LimeGreen,
+            disabledTextColor = Color.White,
+            disabledLabelColor = Color.Gray
+        ),
+        visualTransformation = visualTransformation,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        enabled = enabled,
+        singleLine = singleLine,
+        shape = RoundedCornerShape(14.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                Brush.linearGradient(listOf(Color(0xFF0E0E0E), Color(0xFF1A1A1A))),
+                RoundedCornerShape(16.dp)
+            )
     )
 }
 

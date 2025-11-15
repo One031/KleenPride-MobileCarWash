@@ -178,7 +178,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     onClick = { /* TODO */ },
                     containerColor = LimeGreen,
                     contentColor = Color.Black,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(80.dp)) // leave space for nav bar
@@ -218,7 +218,12 @@ fun RoundedSection(title: String, content: @Composable ColumnScope.() -> Unit, b
     ) {
         Text(title, color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
         content()
-        CustomButton(text = buttonText, onClick = onClick, containerColor = LimeGreen, contentColor = Color.Black)
+        CustomButton(
+            text = buttonText,
+            onClick = onClick,
+            containerColor = LimeGreen,
+            contentColor = Color.Black,
+        )
     }
 }
 

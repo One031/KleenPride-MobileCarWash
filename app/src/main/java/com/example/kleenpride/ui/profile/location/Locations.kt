@@ -328,7 +328,7 @@ fun EditLocationSheet(
             },
             containerColor = LimeGreen,
             contentColor = Color.Black,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
         CustomButton(
@@ -336,7 +336,7 @@ fun EditLocationSheet(
             onClick = onDelete,
             containerColor = Color.Red,
             contentColor = Color.White,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
         CustomButton(
@@ -344,7 +344,7 @@ fun EditLocationSheet(
             onClick = onDismiss,
             containerColor = Color.Gray,
             contentColor = Color.White,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

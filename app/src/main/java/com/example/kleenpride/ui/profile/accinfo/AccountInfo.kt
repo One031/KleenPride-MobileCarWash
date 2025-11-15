@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -29,38 +30,34 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.kleenpride.ui.components.AccountField
 import com.example.kleenpride.ui.components.BottomNavBar
+import com.example.kleenpride.ui.components.ChangePasswordDialog
+import com.example.kleenpride.ui.components.ChangeEmailDialog
+import com.example.kleenpride.ui.components.ChangeFullNameDialog
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.ui.components.CustomTextField
+import com.example.kleenpride.ui.profile.payment.AddPayFastCardSheet
+import com.example.kleenpride.ui.profile.payment.PaymentCard
 import com.example.kleenpride.ui.theme.KleenPrideTheme
 import com.example.kleenpride.ui.theme.LimeGreen
+import com.example.kleenpride.viewmodel.AccountDetailsViewModel
 import kotlinx.coroutines.launch
-
-data class PaymentCard(
-    var nameOnCard: String,
-    var cardNumber: String,
-    var expiryDate: String,
-    var cvv: String,
-    var brand: String = "Visa"
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountDetailsScreen() {
-    var fullName by remember { mutableStateOf("Zion Cummings") }
-    var email by remember { mutableStateOf("zion@example.com") }
-    var password by remember { mutableStateOf("password123") }
+fun AccountDetailsScreen(viewModel: AccountDetailsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
     val context = LocalContext.current
-    val cards = remember {
-        mutableStateListOf(
-            PaymentCard("Zion Cummings", "4111111111117812", "12/26", "123", "Visa"),
-            PaymentCard("Zion Cummings", "5500000000003456", "08/25", "456", "Mastercard")
-        )
-    }
 
-    var selectedCard by remember { mutableStateOf(cards.first()) }
+    var editCardIndex by remember {mutableStateOf<Int?>(null)}
     var editCard by remember { mutableStateOf<PaymentCard?>(null) }
+
+    var showEmailDialog by remember { mutableStateOf(false) }
+    var showPasswordDialog by remember { mutableStateOf(false) }
+    var showFullNameDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf<Int?>(null) }
+
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
@@ -91,16 +88,75 @@ fun AccountDetailsScreen() {
                     )
                 )
 
-                // Account Info Fields
-                AccountField("Full Name", fullName, { fullName = it }, Icons.Filled.Person)
-                AccountField("Email", email, { email = it }, Icons.Filled.Email)
-                AccountField(
-                    "Password",
-                    password,
-                    { password = it },
-                    Icons.Filled.Lock,
-                    isPassword = true
-                )
+               // Full Name with edit button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ){
+                    AccountField(
+                        "Full Name",
+                        viewModel.fullName.value,
+                        {},
+                        Icons.Filled.Person,
+                        modifier = Modifier.weight(1f),
+                        enabled = false
+                    )
+                    IconButton(
+                        onClick = { showFullNameDialog = true },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Icon(Icons.Filled.Edit, "Edit Full Name", tint = LimeGreen)
+                    }
+                }
+
+                // Email with edit button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    AccountField(
+                        "Email",
+                        viewModel.email.value,
+                        {},
+                        Icons.Filled.Email,
+                        modifier = Modifier.weight(1f),
+                        enabled = false
+                    )
+                    IconButton(
+                        onClick = { showEmailDialog = true },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Icon(Icons.Filled.Edit, "Edit Email", tint = LimeGreen)
+                    }
+                }
+
+                // Password with edit button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    AccountField(
+                        "Password",
+                        "••••••••",
+                        {},
+                        Icons.Filled.Lock,
+                        isPassword = true,
+                        modifier = Modifier.weight(1f),
+                        enabled = false
+                    )
+                    IconButton(
+                        onClick = { showPasswordDialog = true },
+                        modifier = Modifier
+                            .size(56.dp)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Icon(Icons.Filled.Edit, "Edit Password", tint = LimeGreen)
+                    }
+                }
 
                 // Payment Details Section
                 Text(
@@ -110,14 +166,21 @@ fun AccountDetailsScreen() {
                     fontWeight = FontWeight.Bold
                 )
 
+                if (viewModel.isLoadingCards.value) {
+                    CircularProgressIndicator(
+                        color = LimeGreen,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }else {
+
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    cards.forEach { card ->
-                        val isSelected = selectedCard == card
+                    viewModel.cards.forEachIndexed { index, card ->
+                        val isSelected = index == viewModel.selectedCardIndex.value
 
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { selectedCard = card },
+                                .clickable { viewModel.selectCard(index) },
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 8.dp else 2.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.Transparent)
@@ -126,9 +189,19 @@ fun AccountDetailsScreen() {
                                 modifier = Modifier
                                     .background(
                                         brush = if (isSelected)
-                                            Brush.linearGradient(listOf(Color(0xFF1C1C1C), Color(0xFF363636)))
+                                            Brush.linearGradient(
+                                                listOf(
+                                                    Color(0xFF1C1C1C),
+                                                    Color(0xFF363636)
+                                                )
+                                            )
                                         else
-                                            Brush.linearGradient(listOf(Color(0xFF0E0E0E), Color(0xFF1A1A1A))),
+                                            Brush.linearGradient(
+                                                listOf(
+                                                    Color(0xFF0E0E0E),
+                                                    Color(0xFF1A1A1A)
+                                                )
+                                            ),
                                         RoundedCornerShape(16.dp)
                                     )
                                     .padding(16.dp)
@@ -139,34 +212,59 @@ fun AccountDetailsScreen() {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column {
+                                    Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = "${card.brand} •••• ${card.cardNumber.takeLast(4)}",
+                                            text = if (card.brand.isNotEmpty()) "${card.brand} •••• ${card.cardNumber}"
+                                            else
+                                                "•••• ${card.cardNumber}",
                                             color = Color.White,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 16.sp
                                         )
-                                        Text(
-                                            text = card.nameOnCard,
-                                            color = Color.Gray,
-                                            fontSize = 14.sp
-                                        )
+
+                                        if (card.cardAlias.isNotEmpty()) {
+                                            Text(
+                                                text = card.cardAlias,
+                                                color = Color.Gray,
+                                                fontSize = 14.sp
+                                            )
+                                        }
+
+                                        if (isSelected) {
+                                            Text(
+                                                text = "Default",
+                                                color = LimeGreen,
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
                                     }
 
-                                    TextButton(onClick = {
-                                        editCard = card
-                                        coroutineScope.launch { sheetState.show() }
-                                    }) {
-                                        Text("Edit", color = LimeGreen)
+                                    Row {
+                                        TextButton(onClick = {
+                                            editCardIndex = index
+                                            editCard = card
+                                            coroutineScope.launch { sheetState.show() }
+                                        }) {
+                                            Text("Edit", color = LimeGreen)
+                                        }
+                                        TextButton(onClick = {
+                                            showDeleteConfirm = index
+                                        }) {
+                                            Text("Delete", color = Color.Red)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }
 
                     // Add Card Button
                     Button(
                         onClick = {
-                            editCard = PaymentCard("", "", "", "", "")
+                            editCardIndex = null
+                            editCard = PaymentCard("", "", "", "")
                             coroutineScope.launch { sheetState.show() }
                         },
                         modifier = Modifier
@@ -202,7 +300,20 @@ fun AccountDetailsScreen() {
 
 
                 Button(
-                    onClick = { Toast.makeText(context, "Saved Changes", Toast.LENGTH_SHORT).show() }, //saves acc info
+                    onClick = {
+                        viewModel.saveAccountInfo(
+                            onSuccess = {
+                                Toast.makeText(
+                                    context,
+                                    "Account details updated",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onError = { error ->
+                                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -211,7 +322,8 @@ fun AccountDetailsScreen() {
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
                         contentColor = Color.Black
-                    )
+                    ),
+                    enabled = !viewModel.isSaving.value
                 ) {
                     Box(
                         modifier = Modifier
@@ -225,7 +337,7 @@ fun AccountDetailsScreen() {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Save Changes",
+                            text = if (viewModel.isSaving.value) "Saving..." else "Save Changes",
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
                             fontSize = 16.sp
@@ -256,22 +368,14 @@ fun AccountDetailsScreen() {
             containerColor = Color(0xFF101010),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
         ) {
-            EditCardSheet(
-                card = editCard!!,
-                onSave = { newCard ->
-                    if (newCard.cvv.length == 3 && newCard.cvv.all { it.isDigit() }) {
-                        if (cards.contains(editCard)) {
-                            val index = cards.indexOf(editCard)
-                            cards[index] = newCard
-                        } else cards.add(newCard)
-                        editCard = null
-                        coroutineScope.launch { sheetState.hide() }
-                    }
-                },
-                onDelete = {
-                    cards.remove(editCard)
+            AddPayFastCardSheet(
+                existingCard = if (editCardIndex != null) editCard else null,
+                onCardAdded = { card ->
+                    viewModel.addOrUpdateCard(card, editCardIndex)
                     editCard = null
                     coroutineScope.launch { sheetState.hide() }
+                    val message = if (editCardIndex != null) "Card Updated" else "Card Added"
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 },
                 onCancel = {
                     editCard = null
@@ -280,133 +384,101 @@ fun AccountDetailsScreen() {
             )
         }
     }
-}
 
-
-@Composable
-fun EditCardSheet(
-    card: PaymentCard,
-    onSave: (PaymentCard) -> Unit,
-    onDelete: () -> Unit,
-    onCancel: () -> Unit
-) {
-    val context = LocalContext.current
-    var nameOnCard by remember { mutableStateOf(card.nameOnCard) }
-    var cardNumber by remember { mutableStateOf(card.cardNumber) }
-    var expiry by remember { mutableStateOf(card.expiryDate) }
-    var cvv by remember { mutableStateOf(card.cvv) }
-    var brand by remember { mutableStateOf(card.brand) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = if (card.nameOnCard.isEmpty()) "Add Card" else "Edit Card",
-            color = LimeGreen,
-            fontWeight = FontWeight.Bold,
-            fontSize = 22.sp
-        )
-
-        CustomTextField(value = nameOnCard, onValueChange = { nameOnCard = it }, label = "Name on Card")
-        CustomTextField(
-            value = cardNumber,
-            onValueChange = { cardNumber = it },
-            label = "Card Number",
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            CustomTextField(
-                value = expiry,
-                onValueChange = { expiry = it },
-                label = "Expiry (MM/YY)",
-                modifier = Modifier.weight(1f)
-            )
-            CustomTextField(
-                value = cvv,
-                onValueChange = {
-                    if (it.length <= 3 && it.all { c -> c.isDigit() }) cvv = it
-                },
-                label = "CVV",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        CustomTextField(value = brand, onValueChange = { brand = it }, label = "Card Brand (Visa, Mastercard)")
-
-        Spacer(modifier = Modifier.height(20.dp))
-        CustomButton(
-            text = "Save",
-            onClick = { onSave(PaymentCard(nameOnCard, cardNumber, expiry, cvv, brand))
-                        Toast.makeText(context,"Card Added", Toast.LENGTH_SHORT).show() },
-            containerColor = LimeGreen,
-            contentColor = Color.Black,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        if (card.nameOnCard.isNotEmpty()) {
-            CustomButton(
-                text = "Delete",
-                onClick = onDelete,
-                containerColor = Color.Red,
-                contentColor = Color.White,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        CustomButton(
-            text = "Cancel",
-            onClick = onCancel,
-            containerColor = Color.Gray,
-            contentColor = Color.White,
-            modifier = Modifier.fillMaxWidth()
+    // Password Change Dialog
+    if (showPasswordDialog) {
+        ChangePasswordDialog(
+            onDismiss = { showPasswordDialog = false },
+            onConfirm = { currentPassword, newPassword ->
+                viewModel.updatePassword(
+                    currentPassword = currentPassword,
+                    newPassword = newPassword,
+                    onSuccess = {
+                        showPasswordDialog = false
+                        Toast.makeText(
+                            context,
+                            "Password updated successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onError = { error ->
+                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
         )
     }
-}
 
-@Composable
-fun AccountField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector,
-    isPassword: Boolean = false
-) {
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        leadingIcon = { Icon(leadingIcon, contentDescription = null, tint = LimeGreen) },
-        trailingIcon = {
-            if (isPassword) {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                        tint = LimeGreen
-                    )
-                }
+    // Full Name Change Dialog
+    if (showFullNameDialog) {
+        ChangeFullNameDialog(
+          currentFullName = viewModel.fullName.value,
+            onDismiss = { showFullNameDialog = false },
+            onConfirm = { newFullName ->
+                viewModel.fullName.value = newFullName
+                showFullNameDialog = false
+                Toast.makeText(context, "Name updated", Toast.LENGTH_SHORT).show()
             }
-        },
-        label = { Text(label, color = Color.Gray) },
-        textStyle = LocalTextStyle.current.copy(color = Color.White),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent,
-            cursorColor = LimeGreen
-        ),
-        visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-        shape = RoundedCornerShape(14.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                Brush.linearGradient(listOf(Color(0xFF0E0E0E), Color(0xFF1A1A1A))),
-                RoundedCornerShape(16.dp)
-            )
-    )
+        )
+    }
+
+    // Email Change Dialog
+    if (showEmailDialog) {
+        ChangeEmailDialog(
+            currentEmail = viewModel.email.value,
+            onDismiss = { showEmailDialog = false },
+            onConfirm = { newEmail, password ->
+                viewModel.updateEmail(
+                    newEmail = newEmail,
+                    currentPassword = password,
+                    onSuccess = {
+                        showEmailDialog = false
+                        Toast.makeText(
+                            context,
+                            "Email updated. Please verify your new email.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    onError = { error ->
+                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
+        )
+    }
+
+    // Delete Confirmation Dialog
+    if (showDeleteConfirm != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = null },
+            title = { Text("Delete Card", color = Color.White) },
+            text = { Text("Are you sure you want to delete this card?", color = Color.Gray) },
+            confirmButton = {
+                TextButton(onClick = {
+                    val index = showDeleteConfirm!!
+                    viewModel.deleteCard(
+                        index = index,
+                        onSuccess = {
+                            Toast.makeText(context, "Card deleted", Toast.LENGTH_SHORT).show()
+                            showDeleteConfirm = null
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                            showDeleteConfirm = null
+                        }
+                    )
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = null }) {
+                    Text("Cancel", color = LimeGreen)
+                }
+            },
+            containerColor = Color(0xFF1A1A1A)
+        )
+    }
 }
 
 

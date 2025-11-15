@@ -131,7 +131,7 @@ fun CarDetails(navController: NavController, accountViewModel: AccountSetupViewM
                     onClick = { navController.popBackStack() },
                     containerColor = Color.Gray,
                     contentColor = Color.Black,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Spacer(Modifier.width(16.dp))
                 CustomButton(
@@ -146,7 +146,7 @@ fun CarDetails(navController: NavController, accountViewModel: AccountSetupViewM
                     },
                     containerColor = Color.Green,
                     contentColor = Color.Black,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
             message?.let { Text(it, color = Color.Red, modifier = Modifier.padding(top = 10.dp)) }

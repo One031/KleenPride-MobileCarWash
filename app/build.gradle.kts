@@ -60,6 +60,8 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.7.0")
     // ConstraintLayout for layouts if needed
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
+    // For Chrome Custom Tabs (PayFast redirect)
+    implementation("androidx.browser:browser:1.8.0")
 
     implementation("com.google.android.gms:play-services-tasks:18.0.3")
     implementation("com.google.firebase:firebase-analytics")
