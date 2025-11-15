@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,7 +41,7 @@ import com.example.kleenpride.ui.theme.KleenPrideTheme
 import com.example.kleenpride.ui.theme.LimeGreen
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
+fun ProfileScreen() {
     val context = LocalContext.current
     var enableNotifications by remember { mutableStateOf(true) }
     var receivePromotions by remember { mutableStateOf(false) }
@@ -128,7 +129,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         val intent = Intent(context, com.example.kleenpride.ui.profile.accinfo.AccountDetailsActivity::class.java)
                         context.startActivity(intent)
                     }
-
                 )
 
                 // My Garage Button
@@ -142,7 +142,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     }
                 )
 
-// Locations Button
+                // Locations Button
                 LocationsButton(
                     onClick = {
                         val intent = Intent(
@@ -152,8 +152,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         context.startActivity(intent)
                     }
                 )
-
-
 
                 // Preferences Section
                 RoundedSection(
@@ -181,10 +179,24 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                 )
 
+                // Log Out Button (Updated)
+                CustomButton(
+                    text = "Log Out",
+                    onClick = {
+                        val intent = Intent(context, com.example.kleenpride.ui.auth.LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        context.startActivity(intent)
+                    },
+                    containerColor = Color(0xFFFF3B30), // Danger red like detailers profile
+                    contentColor = Color.White,
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = Icons.Default.Logout // Same icon as detailers profile
+                )
+
                 Spacer(modifier = Modifier.height(80.dp)) // leave space for nav bar
             }
 
-            // Bottom Navigation fixed like Home Screen. need profile button
+            // Bottom Navigation
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,6 +207,30 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+
+// Updated CustomButton to support icon
+@Composable
+fun CustomButton(
+    text: String,
+    onClick: () -> Unit,
+    containerColor: Color,
+    contentColor: Color,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null
+) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor),
+        modifier = modifier
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = contentColor)
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Text(text, color = contentColor)
+    }
+}
+
 
 
 @Composable
