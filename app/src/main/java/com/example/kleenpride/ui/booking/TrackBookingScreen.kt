@@ -32,7 +32,7 @@ fun TrackBookingScreen(
     onContact: () -> Unit = {},
     onCancel: () -> Unit = {}
 ) {
-    // Use app-specific colors so preview/runtime match BookingScreen theme
+
     val primary = LimeGreen
     val surface = Color(0xFF111111)
     val onSurface = Color.White

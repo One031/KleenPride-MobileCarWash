@@ -36,7 +36,6 @@ fun AdminBookingsScreen() {
 
         Spacer(Modifier.height(12.dp))
 
-        // Example list (you can replace with your API data)
         AdminBookingCard(
             id = "KP-2025-001",
             status1 = "ACTIVE",
@@ -174,14 +173,7 @@ fun AdminBookingCard(
         Text("$service • $car", color = Color.Gray, fontSize = 14.sp)
         Text(date, color = Color.Gray, fontSize = 13.sp)
 
-        Spacer(Modifier.height(16.dp))
-
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-
-            AdminActionButton(label = "View Details", icon = "👁")
-            Spacer(Modifier.width(8.dp))
-            AdminActionButton(label = "Edit", icon = "✏️")
-        }
+        // 🔥 BUTTONS REMOVED — NOTHING BELOW THIS LINE
     }
 }
 
@@ -193,20 +185,6 @@ fun StatusChip(text: String, color: Color) {
             .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Text(text, color = color, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-fun RowScope.AdminActionButton(label: String, icon: String) {
-    Box(
-        modifier = Modifier
-            .background(Color(0xFF1A1A1A), RoundedCornerShape(10.dp))
-            .padding(vertical = 10.dp)
-            .weight(1f)
-            .clickable { },
-        contentAlignment = Alignment.Center
-    ) {
-        Text("$icon  $label", color = Color.White, fontWeight = FontWeight.Medium)
     }
 }
 
