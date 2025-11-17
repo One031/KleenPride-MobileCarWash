@@ -1,7 +1,6 @@
 package com.example.kleenpride.admin.ui.bookings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,29 +13,41 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.admin.ui.overview.AdminTopBar
 import com.example.kleenpride.ui.theme.LimeGreen
 
+//Data Class
+
+data class AdminBooking(
+    val id: String,
+    val status1: String,
+    val status1Color: Color,
+    val status2: String,
+    val status2Color: Color,
+    val name: String,
+    val detailer: String,
+    val service: String,
+    val car: String,
+    val date: String,
+    val price: String
+)
+
+//Main Screen
+
 @Composable
 fun AdminBookingsScreen() {
-    Column(
-        modifier = Modifier
-            .background(Color.Black)
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        AdminTopBar()
-        SearchBookingsBar()
 
-        Spacer(Modifier.height(12.dp))
+    var query by remember { mutableStateOf("") }
 
-        AdminBookingCard(
+    //Hardcoded list for now, must be replaced with the firebase nommer
+    val bookings = listOf(
+        AdminBooking(
             id = "KP-2025-001",
             status1 = "ACTIVE",
             status1Color = LimeGreen,
@@ -48,9 +59,8 @@ fun AdminBookingsScreen() {
             car = "Honda Civic 1996",
             date = "Nov 16, 2025, 10:00 AM",
             price = "R450"
-        )
-
-        AdminBookingCard(
+        ),
+        AdminBooking(
             id = "KP-2025-002",
             status1 = "PENDING",
             status1Color = Color(0xFFFFC700),
@@ -62,9 +72,8 @@ fun AdminBookingsScreen() {
             car = "Nissan 180SX 1998",
             date = "Nov 16, 2025, 2:30 PM",
             price = "R140"
-        )
-
-        AdminBookingCard(
+        ),
+        AdminBooking(
             id = "KP-2025-003",
             status1 = "SCHEDULED",
             status1Color = Color(0xFF8A2BE2),
@@ -77,13 +86,60 @@ fun AdminBookingsScreen() {
             date = "Nov 17, 2024, 9:00 AM",
             price = "R55"
         )
+    )
+
+    //Filter the List
+    val filteredBookings = bookings.filter { booking ->
+        val s = query.trim().lowercase()
+
+        s.isEmpty() ||
+                booking.id.lowercase().contains(s) ||
+                booking.name.lowercase().contains(s) ||
+                booking.detailer.lowercase().contains(s) ||
+                booking.service.lowercase().contains(s) ||
+                booking.car.lowercase().contains(s) ||
+                booking.date.lowercase().contains(s)
+    }
+
+    Column(
+        modifier = Modifier
+            .background(Color.Black)
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        AdminTopBar()
+
+        SearchBookingsBar(
+            query = query,
+            onQueryChange = { query = it }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        filteredBookings.forEach { booking ->
+            AdminBookingCard(
+                id = booking.id,
+                status1 = booking.status1,
+                status1Color = booking.status1Color,
+                status2 = booking.status2,
+                status2Color = booking.status2Color,
+                name = booking.name,
+                detailer = booking.detailer,
+                service = booking.service,
+                car = booking.car,
+                date = booking.date,
+                price = booking.price
+            )
+        }
 
         Spacer(Modifier.height(80.dp))
     }
 }
 
+//Search Bar
+
 @Composable
-fun SearchBookingsBar() {
+fun SearchBookingsBar(query: String, onQueryChange: (String) -> Unit) {
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -92,12 +148,9 @@ fun SearchBookingsBar() {
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        var query by remember { mutableStateOf("") }
-
         BasicTextField(
             value = query,
-            onValueChange = { query = it },
+            onValueChange = { onQueryChange(it) },
             singleLine = true,
             textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
             modifier = Modifier.weight(1f),
@@ -116,6 +169,8 @@ fun SearchBookingsBar() {
         )
     }
 }
+
+//Booking Card
 
 @Composable
 fun AdminBookingCard(
@@ -138,7 +193,6 @@ fun AdminBookingCard(
             .padding(16.dp)
     ) {
 
-        // TOP ROW
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
 
             Column {
@@ -172,10 +226,10 @@ fun AdminBookingCard(
 
         Text("$service • $car", color = Color.Gray, fontSize = 14.sp)
         Text(date, color = Color.Gray, fontSize = 13.sp)
-
-        // 🔥 BUTTONS REMOVED — NOTHING BELOW THIS LINE
     }
 }
+
+//Status Chip
 
 @Composable
 fun StatusChip(text: String, color: Color) {
@@ -187,6 +241,7 @@ fun StatusChip(text: String, color: Color) {
         Text(text, color = color, fontSize = 12.sp, fontWeight = FontWeight.Bold)
     }
 }
+
 
 @Preview(showBackground = true, backgroundColor = 0x000000)
 @Composable
