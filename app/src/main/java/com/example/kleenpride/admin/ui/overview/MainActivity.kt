@@ -113,8 +113,7 @@ fun AdminTopBar() {
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Notifications, contentDescription = null, tint = LimeGreen)
-            Spacer(Modifier.width(16.dp))
+
             Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White)
             Spacer(Modifier.width(16.dp))
 
