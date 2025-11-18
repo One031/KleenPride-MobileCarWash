@@ -14,26 +14,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KleenPride">
 
-
-
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false" />
 
         <activity
             android:name=".ui.homescreen.MainActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
         <activity
             android:name=".ui.booking.BookingActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
         <activity
             android:name=".ui.profile.ProfileActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
         <activity android:name=".ui.profile.accinfo.AccountDetailsActivity" />
 
@@ -41,20 +36,24 @@
 
         <activity android:name=".ui.profile.location.MyLocationsActivity" />
 
-
-
-
         <activity
             android:name=".ui.alerts.AlertsActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
+        <!-- ADMIN SCREENS YOU ADDED -->
 
-        <!-- Make WelcomeScreen the launcher -->
+        <activity
+            android:name=".admin.ui.profile.ProfileScreenActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".admin.ui.users.ManageUsersActivity"
+            android:exported="true" />
+
+        <!-- Launcher Activity -->
         <activity
             android:name=".ui.auth.setup.AccountSetupActivity"
-            android:exported="true"
-            >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

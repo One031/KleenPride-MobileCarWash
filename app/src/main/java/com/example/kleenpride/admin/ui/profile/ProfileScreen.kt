@@ -19,6 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.ui.theme.LimeGreen
 
+
+
+
+
 @Composable
 fun AdminProfileScreen(
     adminName: String,
