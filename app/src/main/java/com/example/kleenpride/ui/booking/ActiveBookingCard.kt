@@ -13,9 +13,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.data.booking.Booking
 import com.example.kleenpride.ui.theme.LimeGreen
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun ActiveBookingCard (booking: Booking){
+
+    // Format the date to a readable string
+    val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val formattedDate = dateFormatter.format(booking.date)
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,14 +41,14 @@ fun ActiveBookingCard (booking: Booking){
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = booking.title,
+            text = booking.serviceName,
             color = Color.White,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = booking.date,
+            text = formattedDate,
             color = Color.Gray,
             fontSize = 14.sp
         )

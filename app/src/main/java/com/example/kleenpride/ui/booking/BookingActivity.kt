@@ -4,26 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.*
+import com.example.kleenpride.data.booking.Booking
+import com.example.kleenpride.data.models.BookingState
 import com.example.kleenpride.viewmodel.BookingViewModel
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.kleenpride.ui.components.BottomNavBar
+import com.google.firebase.auth.FirebaseAuth
+import java.util.Date
+
 
 /**
  * Activity that serves as the entry point for the Booking feature
@@ -43,7 +30,53 @@ class BookingActivity : ComponentActivity() {
 
         // Set the UI content using the BookingScreen Composable
         setContent {
-            BookingScreen(viewModel = viewModel)
+            // State to track which screen to show
+            var currentScreen by remember { mutableStateOf("list") }
+
+            when (currentScreen) {
+                "list" -> BookingScreen(
+                    viewModel = viewModel,
+                    onCreateBooking = { currentScreen = "create" }
+                )
+
+                "create" -> CreateNewBookingScreen(
+                    onBookingConfirmed = { bookingState ->
+                        // Convert BookingState to Booking and save
+                        val booking = bookingStateToBooking(bookingState)
+                        viewModel.createBooking(booking)
+
+                        // Navigate back to list
+                        currentScreen = "list"
+                    }
+                )
+            }
         }
+    }
+
+
+    /**
+     * Converts BookingState from the form to a Booking entity for the database
+     */
+
+    private fun bookingStateToBooking(state: BookingState): Booking {
+       // Get current user ID from Firebase Auth
+
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        return Booking(
+            id = "", // Firestore will auto-generate this
+            userId = currentUserId,
+            serviceName = state.selectedService?.name ?: "",
+            servicePrice = state.selectedService?.price ?: "",
+            serviceDuration = state.selectedService?.duration ?: "",
+            carType = state.selectedCarType?.name ?: "",
+            date = state.selectedDate ?: Date(),
+            time = state.selectedTime ?: "",
+            address = state.address,
+            paymentMethod = state.selectedPaymentMethod?.name ?: "",
+            status = "Active", // New bookings start as Active
+            createdAt = Date(),
+            updatedAt = Date()
+        )
     }
 }

@@ -33,14 +33,15 @@ import com.example.kleenpride.viewmodel.BookingViewModel
  * BookingScreen - Displays user's active and recent bookings
  */
 @Composable
-fun BookingScreen(viewModel: BookingViewModel = viewModel() ) {
+fun BookingScreen(viewModel: BookingViewModel = viewModel(),
+                  onCreateBooking: () -> Unit = {}) {
 
    // Observe bookings list from the ViewModel
     val bookings by viewModel.bookings.observeAsState(emptyList())
 
     // If there are no bookings in the database show the empty screen
     if (bookings.isEmpty()) {
-        EmptyBookingScreen()
+        EmptyBookingScreen(onCreateBookingClick = onCreateBooking)
         return
     }
 
@@ -80,7 +81,7 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel() ) {
                 .padding(horizontal = 7.dp) // align with rest of layout
         ) {
             Button(
-                onClick =  { /* handle click */ },
+                onClick =  onCreateBooking,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
@@ -135,92 +136,5 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel() ) {
 
         // Sharing the navbar with the booking icon
         BottomNavBar(currentScreen = "booking")
-    }
-}
-
-
-@Preview(showBackground = true, backgroundColor = 0x000000)
-@Composable
-fun BookingScreenPreview() {
-   val mockBookings = listOf(
-       Booking("B001", "Active", "Wash & Go", "Oct 10, 2025 at 1:25 PM", "R120"),
-       Booking("B002", "Completed", "Full Detail", "Oct 6, 2025", "R250"),
-       Booking("B003", "Completed", "Quick Wash", "Oct 4, 2025", "R100")
-   )
-
-    // Call the screen with sample bookings, not the real ViewModel
-    BookingScreenPreviewContent(mockBookings)
-}
-
-@Composable
-fun BookingScreenPreviewContent(bookings: List<Booking>) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Bookings",
-            color = Color.White,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-
-        ActiveBookingCard(bookings.first())
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 7.dp) // align with rest of layout
-        ) {
-            Button(
-                onClick =  { /* handle click */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LimeGreen
-                ),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon (
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = "Create New Booking",
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                }
-            }
-        }
-
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = "Recent Bookings",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        bookings.drop(1).take(2).forEach {
-            BookingItem(it)
-            Spacer(modifier = Modifier.height(12.dp))
-        }
     }
 }
