@@ -13,12 +13,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.data.booking.Booking
 import com.example.kleenpride.ui.theme.LimeGreen
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Individual booking item in the list
  */
 @Composable
 fun BookingItem(booking: Booking) {
+    // Format the date to a readable string
+    val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val formattedDate = dateFormatter.format(booking.date)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,19 +49,19 @@ fun BookingItem(booking: Booking) {
                 )
             }
             Text(
-                text = booking.title,
+                text = booking.serviceName,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
             Text(
-                text = booking.date,
+                text = formattedDate,
                 color = Color.Gray,
                 fontSize = 13.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = booking.price,
+                text = booking.servicePrice,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp

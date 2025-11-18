@@ -5,19 +5,60 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.DocumentId
+import java.util.Date
 
 /**
  * Data class that represents a single booking entry.
  * Default values are added so Firestore can deserialize objects easily
  */
-
 data class Booking(
-    val title: String = "",
-    val date: String = "",
-    val price: String = "",
-    val status: String = "",
-    val id: String = ""
-)
+    @DocumentId
+    val id: String = "",
+    val userId: String = "",
+
+    // Service details
+    val serviceName: String = "",
+    val servicePrice: String = "",
+    val serviceDuration: String = "",
+
+    // Car information
+    val carType: String = "",
+
+    // Booking date and time
+    val date: Date = Date(),
+    val time: String = "",
+
+    // Location
+    val address: String = "",
+
+    // Payment
+    val paymentMethod: String = "",
+
+    // Status tracking
+    val status: String = "Active", // Active, Completed, Cancelled
+
+    // Timestamps
+    val createdAt: Date = Date(),
+    val updatedAt: Date = Date()
+) {
+    // No-argument constructor required by Firestore
+    constructor() : this(
+        id = "",
+        userId = "",
+        serviceName = "",
+        servicePrice = "",
+        serviceDuration = "",
+        carType = "",
+        date = Date(),
+        time = "",
+        address = "",
+        paymentMethod = "",
+        status = "Active",
+        createdAt = Date(),
+        updatedAt = Date()
+    )
+}
 
 /**
  * Repository responsible for interacting with Firebase Firestore
