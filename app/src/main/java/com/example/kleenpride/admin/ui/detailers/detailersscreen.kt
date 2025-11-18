@@ -10,7 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.admin.ui.overview.AdminTopBar
 import com.example.kleenpride.ui.theme.LimeGreen
+import java.text.SimpleDateFormat
+import java.util.*
 
 class AdminDetailersActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,8 +33,57 @@ class AdminDetailersActivity : ComponentActivity() {
     }
 }
 
+// Data class for detailers
+data class Detailer(
+    val name: String,
+    val email: String,
+    val phone: String,
+    val rating: Float = 0f,
+    val totalJobs: Int = 0,
+    val earnings: Int = 0,
+    val status: String = "ACTIVE",
+    val statusColor: Color = LimeGreen,
+    val joinDate: String = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
+)
+
 @Composable
 fun AdminDetailersScreen() {
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    var detailers by remember {
+        mutableStateOf(
+            listOf(
+                Detailer(
+                    name = "James Smith",
+                    email = "James.smith@kleenpride.com",
+                    phone = "+27 82 123 4567",
+                    rating = 4.8f,
+                    totalJobs = 36,
+                    earnings = 8905,
+                    joinDate = "Jan 2024"
+                ),
+                Detailer(
+                    name = "Ja Rule",
+                    email = "Ja.rule@kleenpride.com",
+                    phone = "+27 83 234 5678",
+                    rating = 4.6f,
+                    totalJobs = 28,
+                    earnings = 6850,
+                    joinDate = "Feb 2024"
+                ),
+                Detailer(
+                    name = "Cornell Haynes",
+                    email = "Cornell.haynes@kleenpride.com",
+                    phone = "+27 84 345 6789",
+                    rating = 4.9f,
+                    totalJobs = 46,
+                    earnings = 12500,
+                    joinDate = "Dec 2023"
+                )
+            )
+        )
+    }
+
     Scaffold(
         containerColor = Color.Black,
         topBar = { AdminTopBar() }
@@ -44,54 +96,51 @@ fun AdminDetailersScreen() {
                 .verticalScroll(rememberScrollState())
         ) {
 
-            DetailersHeader()
+            DetailersHeader(
+                total = detailers.size,
+                onAddClick = { showAddDialog = true }
+            )
 
             Spacer(Modifier.height(12.dp))
 
-            // Example detailers list
-            DetailerCard(
-                name = "James Smith",
-                email = "James.smith@kleenpride.com",
-                phone = "+27 82 123 4567",
-                rating = 4.8f,
-                totalJobs = 38,
-                earnings = 21000,
-                status = "ACTIVE",
-                statusColor = LimeGreen,
-                joinDate = "Jan 2024"
-            )
-
-            DetailerCard(
-                name = "Ja Rule",
-                email = "Ja.rule@kleenpride.com",
-                phone = "+27 83 234 5678",
-                rating = 4.6f,
-                totalJobs = 46,
-                earnings = 18000,
-                status = "ACTIVE",
-                statusColor = LimeGreen,
-                joinDate = "Feb 2024"
-            )
-
-            DetailerCard(
-                name = "Cornell Haynes",
-                email = "Cornell.haynes@kleenpride.com",
-                phone = "+27 84 345 6789",
-                rating = 4.9f,
-                totalJobs = 51,
-                earnings = 25000,
-                status = "ACTIVE",
-                statusColor = LimeGreen,
-                joinDate = "Dec 2023"
-            )
+            detailers.forEachIndexed { index, detailer ->
+                DetailerCard(
+                    detailer = detailer,
+                    onToggleStatus = {
+                        val updatedDetailers = detailers.toMutableList()
+                        val isActive = detailer.status == "ACTIVE"
+                        updatedDetailers[index] = detailer.copy(
+                            status = if (isActive) "INACTIVE" else "ACTIVE",
+                            statusColor = if (isActive) Color.Red else LimeGreen
+                        )
+                        detailers = updatedDetailers
+                    },
+                    onDelete = {
+                        val updatedDetailers = detailers.toMutableList()
+                        updatedDetailers.removeAt(index)
+                        detailers = updatedDetailers
+                    }
+                )
+            }
 
             Spacer(Modifier.height(80.dp))
+        }
+
+        if (showAddDialog) {
+            AddDetailerDialog(
+                onDismiss = { showAddDialog = false },
+                onSave = { name, email, phone ->
+                    val newDetailer = Detailer(name = name, email = email, phone = phone)
+                    detailers = detailers + newDetailer
+                    showAddDialog = false
+                }
+            )
         }
     }
 }
 
 @Composable
-fun DetailersHeader() {
+fun DetailersHeader(total: Int, onAddClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,14 +156,14 @@ fun DetailersHeader() {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                "4 registered",
+                "$total registered",
                 color = Color.Gray,
                 fontSize = 14.sp
             )
         }
 
         Button(
-            onClick = {},
+            onClick = onAddClick,
             colors = ButtonDefaults.buttonColors(containerColor = LimeGreen),
             shape = RoundedCornerShape(10.dp)
         ) {
@@ -125,16 +174,12 @@ fun DetailersHeader() {
 
 @Composable
 fun DetailerCard(
-    name: String,
-    email: String,
-    phone: String,
-    rating: Float,
-    totalJobs: Int,
-    earnings: Int,
-    status: String,
-    statusColor: Color,
-    joinDate: String
+    detailer: Detailer,
+    onToggleStatus: () -> Unit,
+    onDelete: () -> Unit
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -142,14 +187,12 @@ fun DetailerCard(
             .padding(16.dp)
     ) {
 
-        // Profile Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
             Row(verticalAlignment = Alignment.Top) {
-                // Profile Picture
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -157,7 +200,7 @@ fun DetailerCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        name.first().toString(),
+                        detailer.name.first().toString(),
                         color = Color.Black,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -169,56 +212,69 @@ fun DetailerCard(
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            name,
+                            detailer.name,
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(Modifier.width(8.dp))
-                        StatusChip(text = status, color = statusColor)
+                        StatusChip(text = detailer.status, color = detailer.statusColor)
                     }
 
                     Spacer(Modifier.height(4.dp))
 
-                    Text(
-                        email,
-                        color = Color.Gray,
-                        fontSize = 13.sp
-                    )
-
-                    Text(
-                        phone,
-                        color = Color.Gray,
-                        fontSize = 13.sp
-                    )
+                    Text(detailer.email, color = Color.Gray, fontSize = 13.sp)
+                    Text(detailer.phone, color = Color.Gray, fontSize = 13.sp)
                 }
             }
 
-            Icon(
-                Icons.Default.MoreVert,
-                contentDescription = "More options",
-                tint = Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
+            Box {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = "More options",
+                    tint = Color.Gray,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { menuExpanded = true }
+                )
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(if (detailer.status == "ACTIVE") "Deactivate" else "Activate") },
+                        onClick = {
+                            onToggleStatus()
+                            menuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            onDelete()
+                            menuExpanded = false
+                        }
+                    )
+                }
+            }
         }
 
         Spacer(Modifier.height(16.dp))
 
-        // Stats Grid
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             DetailerStatBox(
                 label = "Rating",
-                value = rating.toString(),
+                value = detailer.rating.toString(),
                 valueColor = Color.White,
                 icon = Icons.Default.Star
             )
 
             DetailerStatBox(
                 label = "Jobs",
-                value = totalJobs.toString(),
+                value = detailer.totalJobs.toString(),
                 valueColor = Color.White,
                 icon = null
             )
@@ -233,41 +289,10 @@ fun DetailerCard(
                 Text("Earnings", color = Color.Gray, fontSize = 11.sp)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "R${String.format("%,d", earnings)}",
+                    "R${String.format("%,d", detailer.earnings)}",
                     color = LimeGreen,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        // Action Buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            DetailerActionButton(label = "View Profile")
-            Spacer(Modifier.width(8.dp))
-            DetailerActionButton(label = "Edit")
-            Spacer(Modifier.width(8.dp))
-
-            Box(
-                modifier = Modifier
-                    .background(
-                        if (status == "ACTIVE") Color(0xFF220000) else Color(0xFF002200),
-                        RoundedCornerShape(10.dp)
-                    )
-                    .padding(vertical = 10.dp, horizontal = 12.dp)
-                    .clickable { },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    if (status == "ACTIVE") Icons.Default.Close else Icons.Default.Check,
-                    contentDescription = if (status == "ACTIVE") "Deactivate" else "Activate",
-                    tint = if (status == "ACTIVE") Color.Red else LimeGreen,
-                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -290,37 +315,13 @@ fun RowScope.DetailerStatBox(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (icon != null) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = LimeGreen,
-                    modifier = Modifier.size(12.dp)
-                )
+                Icon(icon, contentDescription = null, tint = LimeGreen, modifier = Modifier.size(12.dp))
                 Spacer(Modifier.width(4.dp))
             }
             Text(label, color = Color.Gray, fontSize = 11.sp)
         }
         Spacer(Modifier.height(4.dp))
-        Text(
-            value,
-            color = valueColor,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-fun RowScope.DetailerActionButton(label: String) {
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .background(Color(0xFF1A1A1A), RoundedCornerShape(10.dp))
-            .padding(vertical = 10.dp)
-            .clickable { },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(label, color = Color.White, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+        Text(value, color = valueColor, fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -335,12 +336,80 @@ fun StatusChip(text: String, color: Color) {
     }
 }
 
+@Composable
+fun AddDetailerDialog(
+    onDismiss: () -> Unit,
+    onSave: (String, String, String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF111111),
+        title = { Text("Add New Detailer", color = Color.White, fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Full Name", color = Color.Gray) },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1A1A1A),
+                        unfocusedContainerColor = Color(0xFF1A1A1A),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = LimeGreen
+                    )
+                )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email Address", color = Color.Gray) },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1A1A1A),
+                        unfocusedContainerColor = Color(0xFF1A1A1A),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = LimeGreen
+                    )
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("Phone Number", color = Color.Gray) },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1A1A1A),
+                        unfocusedContainerColor = Color(0xFF1A1A1A),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = LimeGreen
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (name.isNotBlank() && email.isNotBlank() && phone.isNotBlank()) {
+                        onSave(name, email, phone)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = LimeGreen)
+            ) { Text("Save", color = Color.Black, fontWeight = FontWeight.Bold) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Gray) } }
+    )
+}
+
 @Preview(showBackground = true, backgroundColor = 0x000000)
 @Composable
 fun PreviewAdminDetailersScreen() {
-    MaterialTheme {
-        AdminDetailersScreen()
-    }
+    MaterialTheme { AdminDetailersScreen() }
 }
 
 @Preview(showBackground = true, backgroundColor = 0x000000)
@@ -348,15 +417,19 @@ fun PreviewAdminDetailersScreen() {
 fun PreviewDetailerCard() {
     MaterialTheme {
         DetailerCard(
-            name = "Ja Rule",
-            email = "Ja.rule@kleenpride.com",
-            phone = "+27 82 123 4567",
-            rating = 4.8f,
-            totalJobs = 46,
-            earnings = 18000,
-            status = "ACTIVE",
-            statusColor = LimeGreen,
-            joinDate = "Jan 2024"
+            detailer = Detailer(
+                name = "Ja Rule",
+                email = "Ja.rule@kleenpride.com",
+                phone = "+27 82 123 4567",
+                rating = 4.8f,
+                totalJobs = 46,
+                earnings = 18000,
+                status = "ACTIVE",
+                statusColor = LimeGreen,
+                joinDate = "Jan 2024"
+            ),
+            onToggleStatus = {},
+            onDelete = {}
         )
     }
 }

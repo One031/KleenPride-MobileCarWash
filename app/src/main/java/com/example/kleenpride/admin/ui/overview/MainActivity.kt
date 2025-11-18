@@ -1,24 +1,27 @@
 package com.example.kleenpride.admin.ui.overview
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.ui.theme.LimeGreen
@@ -26,7 +29,8 @@ import com.example.kleenpride.admin.ui.components.AdminBottomNavBar
 import com.example.kleenpride.admin.ui.bookings.AdminBookingsScreen
 import com.example.kleenpride.admin.ui.detailers.AdminDetailersScreen
 import com.example.kleenpride.admin.ui.customers.AdminCustomersScreen
-
+import com.example.kleenpride.admin.ui.profile.ProfileScreenActivity
+import androidx.compose.foundation.shape.CircleShape
 
 class AdminOverviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +51,10 @@ fun AdminMainScreen() {
             .fillMaxSize()
             .background(darkBackground)
     ) {
-        //Main Content based on selected tab
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 70.dp) // fixed the overlapping navbar
+                .padding(bottom = 70.dp)
         ) {
             when (selectedTab) {
                 "Overview" -> AdminOverviewScreen()
@@ -61,7 +64,6 @@ fun AdminMainScreen() {
             }
         }
 
-        //Bottom NavBar
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -86,13 +88,14 @@ fun AdminOverviewScreen() {
         AdminStatsSection()
         TodayPerformanceCard()
         RecentBookingsSection()
-
         Spacer(Modifier.height(80.dp))
     }
 }
 
 @Composable
 fun AdminTopBar() {
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,14 +116,19 @@ fun AdminTopBar() {
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-
             Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White)
             Spacer(Modifier.width(16.dp))
 
             Box(
                 modifier = Modifier
                     .size(32.dp)
-                    .background(LimeGreen, shape = MaterialTheme.shapes.small),
+                    .clip(CircleShape)
+                    .background(LimeGreen)
+                    .clickable {
+                        context.startActivity(
+                            Intent(context, ProfileScreenActivity::class.java)
+                        )
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Text("A", color = Color.Black, fontWeight = FontWeight.Bold)
@@ -136,15 +144,15 @@ fun AdminStatsSection() {
         Row(Modifier.fillMaxWidth()) {
             StatCard(
                 title = "Total Revenue",
-                value = "R1,245,800",
+                value = "R28,255",
                 sub = "+12% this month",
                 borderColor = LimeGreen
             )
             Spacer(Modifier.width(12.dp))
             StatCard(
                 title = "Active Bookings",
-                value = "47",
-                sub = "Today: 12 completed"
+                value = "13",
+                sub = "Today: 6 completed"
             )
         }
 
@@ -153,14 +161,14 @@ fun AdminStatsSection() {
         Row(Modifier.fillMaxWidth()) {
             StatCard(
                 title = "Total Detailers",
-                value = "23",
-                sub = "18 active now"
+                value = "3",
+                sub = "1 active now"
             )
             Spacer(Modifier.width(12.dp))
             StatCard(
                 title = "Total Customers",
-                value = "342",
-                sub = "342 registered"
+                value = "23",
+                sub = "23 registered"
             )
         }
     }
@@ -188,8 +196,6 @@ fun RowScope.StatCard(
     }
 }
 
-
-
 @Composable
 fun TodayPerformanceCard() {
     Column(
@@ -202,22 +208,25 @@ fun TodayPerformanceCard() {
 
         Spacer(Modifier.height(16.dp))
 
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Column {
                 Text("Revenue", color = Color.Gray)
-                Text("R18,500", color = LimeGreen, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("R1250", color = LimeGreen, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
             Column {
                 Text("Completed", color = Color.Gray)
-                Text("12", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("6", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
             Column {
                 Text("Pending", color = Color.Gray)
-                Text("5", color = Color.Yellow, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("3", color = Color.Yellow, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
             Column {
                 Text("Scheduled", color = Color.Gray)
-                Text("5", color = Color.Magenta, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("4", color = Color.Magenta, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -293,7 +302,10 @@ fun BookingCard(
             .background(Color(0xFF111111), shape = MaterialTheme.shapes.medium)
             .padding(16.dp)
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
 
             Column {
                 Text("$bookingId • $status", color = statusColor, fontWeight = FontWeight.Bold)
@@ -304,7 +316,7 @@ fun BookingCard(
             Column(horizontalAlignment = Alignment.End) {
                 Text(price, color = LimeGreen, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 if (paid) Text("✓ Paid", color = LimeGreen)
-            else Text("Pending", color = Color.Yellow)
+                else Text("Pending", color = Color.Yellow)
             }
         }
 
