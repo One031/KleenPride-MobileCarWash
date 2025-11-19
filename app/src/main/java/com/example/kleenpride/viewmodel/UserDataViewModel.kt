@@ -3,6 +3,7 @@ package com.example.kleenpride.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.kleenpride.data.models.UserRole
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -13,7 +14,8 @@ data class UserData(
     val phoneNumber: String = "",
     val favourites: List<String> = emptyList(),
     val defaultVehicleId: String = "",
-    val defaultAddressId: String = ""
+    val defaultAddressId: String = "",
+    val role: String = "CUSTOMER"
 )
 
 class UserDataViewModel : ViewModel() {
@@ -46,7 +48,8 @@ class UserDataViewModel : ViewModel() {
                         phoneNumber = document.getString("phoneNumber") ?: "",
                         defaultAddressId = document.getString("defaultAddressId") ?: "",
                         defaultVehicleId = document.getString("defaultVehicleId") ?: "",
-                        favourites = document.get("favourites") as? List<String> ?: emptyList()
+                        favourites = document.get("favourites") as? List<String> ?: emptyList(),
+                        role = document.getString("role") ?: "CUSTOMER" // Get role
                     )
                     _userData.value = user
                 } else {
@@ -57,5 +60,26 @@ class UserDataViewModel : ViewModel() {
                 _error.value = e.message
             }
 
+    }
+
+    /**
+     * Check if current user is admin
+     */
+    fun isAdmin(): Boolean {
+        return _userData.value?.role == "ADMIN"
+    }
+
+    /**
+     * Check if current user is detailer
+     */
+    fun isDetailer(): Boolean {
+        return _userData.value?.role == "DETAILER"
+    }
+
+    /**
+     * Check if current user is customer
+     */
+    fun isCustomer(): Boolean {
+        return _userData.value?.role == "CUSTOMER"
     }
 }

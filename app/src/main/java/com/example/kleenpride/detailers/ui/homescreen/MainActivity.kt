@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 
 
 
-class MainActivity : ComponentActivity() {
+class DetailerMainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
