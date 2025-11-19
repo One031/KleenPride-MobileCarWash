@@ -3,22 +3,12 @@ package com.example.kleenpride.admin.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.kleenpride.admin.data.models.Detailer
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
-data class Detailer(
-    val id: String = "",
-    val firstName: String = "",
-    val lastName: String = "",
-    val email: String = "",
-    val phoneNumber: String = "",
-    val rating: Float = 0f,
-    val totalJobs: Int = 0,
-    val earnings: Int = 0,
-    val status: String = "ACTIVE",
-    val joinDate: String = "",
-    val role: String = "DETAILER"
-)
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AdminDetailersViewModel : ViewModel() {
 
@@ -37,6 +27,9 @@ class AdminDetailersViewModel : ViewModel() {
     private val _createSuccess = MutableLiveData<Boolean>()
     val createSuccess: LiveData<Boolean> = _createSuccess
 
+    private val _needsReLogin = MutableLiveData<Boolean>()
+    val needsReLogin: LiveData<Boolean> = _needsReLogin
+
     init {
         loadDetailers()
     }
@@ -53,6 +46,14 @@ class AdminDetailersViewModel : ViewModel() {
             .addOnSuccessListener { snapshot ->
                 val detailersList = snapshot.documents.mapNotNull { doc ->
                     try {
+                        val joinDateTimestamp = doc.getTimestamp("joinDate")
+                        val joinDateString = if (joinDateTimestamp != null) {
+                            val date = joinDateTimestamp.toDate()
+                            SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(date)
+                        } else {
+                            SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
+                        }
+
                         Detailer(
                             id = doc.id,
                             firstName = doc.getString("firstName") ?: "",
@@ -63,15 +64,17 @@ class AdminDetailersViewModel : ViewModel() {
                             totalJobs = doc.getLong("totalJobs")?.toInt() ?: 0,
                             earnings = doc.getLong("earnings")?.toInt() ?: 0,
                             status = doc.getString("status") ?: "ACTIVE",
-                            joinDate = doc.getString("joinDate") ?: "",
+                            joinDate = joinDateString,
                             role = "DETAILER"
                         )
                     } catch (e: Exception) {
+                        println("DEBUG: Error parsing document ${doc.id}: ${e.message}")
                         null
                     }
                 }
                 _detailers.value = detailersList
                 _isLoading.value = false
+                println("DEBUG: Successfully parsed ${detailersList.size} detailers")
             }
             .addOnFailureListener { e ->
                 _error.value = e.message
@@ -80,25 +83,23 @@ class AdminDetailersViewModel : ViewModel() {
     }
 
     /**
-     * Create a new detailer account (Admin only)
-     * This creates the Firebase Auth account AND the Firestore document
+     * Create a new detailer account
+     * WARNING: This will sign out the current admin user
      */
     fun createDetailer(
         email: String,
         password: String,
         firstName: String,
         lastName: String,
-        phoneNumber: String,
-        onSuccess: () -> Unit = {}
+        phoneNumber: String
     ) {
         _isLoading.value = true
+        _createSuccess.value = false
 
-        // First, create Firebase Auth account
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { authResult ->
                 val newUserId = authResult.user?.uid ?: return@addOnSuccessListener
 
-                // Then create Firestore document with DETAILER role
                 val detailerData = hashMapOf(
                     "firstName" to firstName,
                     "lastName" to lastName,
@@ -116,21 +117,27 @@ class AdminDetailersViewModel : ViewModel() {
                 firestore.collection("users").document(newUserId)
                     .set(detailerData)
                     .addOnSuccessListener {
+                        // Sign out the newly created detailer
+                        auth.signOut()
+
                         _createSuccess.value = true
                         _isLoading.value = false
-                        loadDetailers() // Refresh list
-                        onSuccess()
+                        _needsReLogin.value = true
+
+                        println("DEBUG: Detailer created successfully")
                     }
                     .addOnFailureListener { e ->
                         _error.value = "Failed to create detailer profile: ${e.message}"
                         _isLoading.value = false
-                        // Delete the auth account if Firestore creation fails
+
+                        // Clean up auth account if Firestore creation failed
                         authResult.user?.delete()
                     }
             }
             .addOnFailureListener { e ->
                 _error.value = "Failed to create account: ${e.message}"
                 _isLoading.value = false
+                println("DEBUG: Auth creation failed: ${e.message}")
             }
     }
 
@@ -138,27 +145,58 @@ class AdminDetailersViewModel : ViewModel() {
      * Update detailer status (ACTIVE/INACTIVE)
      */
     fun updateDetailerStatus(detailerId: String, newStatus: String) {
+        _isLoading.value = true
+
         firestore.collection("users").document(detailerId)
             .update("status", newStatus)
             .addOnSuccessListener {
-                loadDetailers() // Refresh list
-            }
-            .addOnFailureListener { e ->
-                _error.value = e.message
-            }
-    }
-
-    /**
-     * Delete a detailer (soft delete by setting status to DELETED)
-     */
-    fun deleteDetailer(detailerId: String) {
-        firestore.collection("users").document(detailerId)
-            .update("status", "DELETED")
-            .addOnSuccessListener {
+                _isLoading.value = false
                 loadDetailers()
             }
             .addOnFailureListener { e ->
                 _error.value = e.message
+                _isLoading.value = false
             }
+    }
+
+    /**
+     * Actually delete a detailer from Firebase Auth and Firestore
+     */
+    fun deleteDetailer(detailerId: String) {
+        _isLoading.value = true
+
+        // First, delete from Firestore
+        firestore.collection("users").document(detailerId)
+            .delete()
+            .addOnSuccessListener {
+                _isLoading.value = false
+                loadDetailers()
+                println("DEBUG: Detailer deleted successfully")
+            }
+            .addOnFailureListener { e ->
+                _error.value = "Failed to delete detailer: ${e.message}"
+                _isLoading.value = false
+            }
+    }
+
+    /**
+     * Reset create success state
+     */
+    fun resetCreateSuccess() {
+        _createSuccess.value = false
+    }
+
+    /**
+     * Reset error state
+     */
+    fun resetError() {
+        _error.value = null
+    }
+
+    /**
+     * Reset re-login flag
+     */
+    fun resetReLoginFlag() {
+        _needsReLogin.value = false
     }
 }
