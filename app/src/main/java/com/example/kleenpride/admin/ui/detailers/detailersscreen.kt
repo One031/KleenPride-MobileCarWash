@@ -1,5 +1,6 @@
 package com.example.kleenpride.admin.ui.detailers
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,20 +18,24 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kleenpride.admin.data.models.Detailer
 import com.example.kleenpride.admin.ui.overview.AdminTopBar
+import com.example.kleenpride.admin.viewmodel.AdminDetailersViewModel
+import com.example.kleenpride.ui.auth.LoginActivity
 import com.example.kleenpride.ui.theme.LimeGreen
-import java.text.SimpleDateFormat
-import java.util.*
+import kotlinx.coroutines.delay
 import java.util.regex.Pattern
 
 class AdminDetailersActivity : ComponentActivity() {
@@ -40,64 +45,74 @@ class AdminDetailersActivity : ComponentActivity() {
     }
 }
 
-// Data class for the detailers
-data class Detailer(
-    val firstName: String,
-    val lastName: String,
-    val email: String,
-    val phone: String,
-    val rating: Float = 0f,
-    val totalJobs: Int = 0,
-    val earnings: Int = 0,
-    val status: String = "ACTIVE",
-    val statusColor: Color = LimeGreen,
-    val joinDate: String = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date())
-)
-
 @Composable
 fun AdminDetailersScreen() {
-    var showAddDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val viewModel: AdminDetailersViewModel = viewModel()
+    val detailers by viewModel.detailers.observeAsState(emptyList())
+    val isLoading by viewModel.isLoading.observeAsState(false)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val error by viewModel.error.observeAsState()
+    val createSuccess by viewModel.createSuccess.observeAsState(false)
+    val needsReLogin by viewModel.needsReLogin.observeAsState(false)
 
-    var detailers by remember {
-        mutableStateOf(
-            listOf(
-                Detailer(
-                    firstName = "James",
-                    lastName = "Smith",
-                    email = "James.smith@kleenpride.com",
-                    phone = "+27 82 123 4567",
-                    rating = 4.8f,
-                    totalJobs = 36,
-                    earnings = 8905,
-                    joinDate = "Jan 2024"
-                ),
-                Detailer(
-                    firstName = "Ja",
-                    lastName = "Rule",
-                    email = "Ja.rule@kleenpride.com",
-                    phone = "+27 83 234 5678",
-                    rating = 4.6f,
-                    totalJobs = 28,
-                    earnings = 6850,
-                    joinDate = "Feb 2024"
-                ),
-                Detailer(
-                    firstName = "Cornell",
-                    lastName = "Haynes",
-                    email = "Cornell.haynes@kleenpride.com",
-                    phone = "+27 84 345 6789",
-                    rating = 4.9f,
-                    totalJobs = 46,
-                    earnings = 12500,
-                    joinDate = "Dec 2023"
-                )
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf<String?>(null) }
+
+    // Handle re-login requirement
+    LaunchedEffect(needsReLogin) {
+        if (needsReLogin) {
+            snackbarHostState.showSnackbar(
+                message = "Detailer created! Redirecting to login...",
+                duration = SnackbarDuration.Short
             )
-        )
+            delay(1500) // Give user time to read the message
+
+            // Navigate to login activity
+            // Replace with your actual LoginActivity class
+            val intent = Intent(context, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            context.startActivity(intent)
+
+            viewModel.resetReLoginFlag()
+        }
+    }
+
+    // Handle success message and auto-close dialog
+    LaunchedEffect(createSuccess) {
+        if (createSuccess) {
+            showAddDialog = false // Close dialog immediately
+            viewModel.resetCreateSuccess()
+        }
+    }
+
+    // Handle errors
+    LaunchedEffect(error) {
+        error?.let { errorMessage ->
+            if (!errorMessage.contains("Redirecting to login")) {
+                snackbarHostState.showSnackbar(
+                    message = errorMessage,
+                    duration = SnackbarDuration.Long
+                )
+            }
+            viewModel.resetError()
+        }
     }
 
     Scaffold(
         containerColor = Color.Black,
-        topBar = { AdminTopBar() }
+        topBar = { AdminTopBar() },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = if (data.visuals.message.contains("Error") ||
+                        data.visuals.message.contains("Failed"))
+                        Color.Red else LimeGreen,
+                    contentColor = Color.White
+                )
+            }
+        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -106,7 +121,6 @@ fun AdminDetailersScreen() {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-
             DetailersHeader(
                 total = detailers.size,
                 onAddClick = { showAddDialog = true }
@@ -114,24 +128,30 @@ fun AdminDetailersScreen() {
 
             Spacer(Modifier.height(12.dp))
 
-            detailers.forEachIndexed { index, detailer ->
-                DetailerCard(
-                    detailer = detailer,
-                    onToggleStatus = {
-                        val updatedDetailers = detailers.toMutableList()
-                        val isActive = detailer.status == "ACTIVE"
-                        updatedDetailers[index] = detailer.copy(
-                            status = if (isActive) "INACTIVE" else "ACTIVE",
-                            statusColor = if (isActive) Color.Red else LimeGreen
-                        )
-                        detailers = updatedDetailers
-                    },
-                    onDelete = {
-                        val updatedDetailers = detailers.toMutableList()
-                        updatedDetailers.removeAt(index)
-                        detailers = updatedDetailers
-                    }
-                )
+            // Show loading indicator
+            if (isLoading && detailers.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = LimeGreen)
+                }
+            } else {
+                // Show detailers list
+                detailers.forEach { detailer ->
+                    DetailerCard(
+                        detailer = detailer,
+                        onToggleStatus = {
+                            val newStatus = if (detailer.status == "ACTIVE") "INACTIVE" else "ACTIVE"
+                            viewModel.updateDetailerStatus(detailer.id, newStatus)
+                        },
+                        onDelete = {
+                            showDeleteConfirmDialog = detailer.id
+                        }
+                    )
+                }
             }
 
             Spacer(Modifier.height(80.dp))
@@ -141,15 +161,50 @@ fun AdminDetailersScreen() {
             AddDetailerDialog(
                 onDismiss = { showAddDialog = false },
                 onSave = { firstName, lastName, phone, email, password ->
-                    val newDetailer = Detailer(
+                    viewModel.createDetailer(
+                        email = email,
+                        password = password,
                         firstName = firstName,
                         lastName = lastName,
-                        phone = phone,
-                        email = email
-
+                        phoneNumber = phone
                     )
-                    detailers = detailers + newDetailer
-                    showAddDialog = false
+                }
+            )
+        }
+
+        // Delete confirmation dialog
+        showDeleteConfirmDialog?.let { detailerId ->
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirmDialog = null },
+                containerColor = Color(0xFF111111),
+                title = {
+                    Text(
+                        "Delete Detailer?",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        "This will permanently delete this detailer. This action cannot be undone.",
+                        color = Color.Gray
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.deleteDetailer(detailerId)
+                            showDeleteConfirmDialog = null
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text("Delete", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteConfirmDialog = null }) {
+                        Text("Cancel", color = Color.Gray)
+                    }
                 }
             )
         }
@@ -203,7 +258,6 @@ fun DetailerCard(
             .background(Color(0xFF0F0F0F), RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -217,7 +271,7 @@ fun DetailerCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        detailer.firstName.first().toString(),
+                        detailer.firstName.firstOrNull()?.toString() ?: "D",
                         color = Color.Black,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -229,7 +283,7 @@ fun DetailerCard(
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            "${detailer.firstName} ${detailer.lastName}",
+                            detailer.displayName,
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -241,7 +295,7 @@ fun DetailerCard(
                     Spacer(Modifier.height(4.dp))
 
                     Text(detailer.email, color = Color.Gray, fontSize = 13.sp)
-                    Text(detailer.phone, color = Color.Gray, fontSize = 13.sp)
+                    Text(detailer.phoneNumber, color = Color.Gray, fontSize = 13.sp)
                 }
             }
 
@@ -266,7 +320,7 @@ fun DetailerCard(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Delete") },
+                        text = { Text("Delete", color = Color.Red) },
                         onClick = {
                             onDelete()
                             menuExpanded = false
@@ -284,7 +338,7 @@ fun DetailerCard(
         ) {
             DetailerStatBox(
                 label = "Rating",
-                value = detailer.rating.toString(),
+                value = "%.1f".format(detailer.rating),
                 valueColor = Color.White,
                 icon = Icons.Default.Star
             )
@@ -353,7 +407,6 @@ fun StatusChip(text: String, color: Color) {
     }
 }
 
-//Detailer Dialog
 @Composable
 fun AddDetailerDialog(
     onDismiss: () -> Unit,
@@ -378,9 +431,14 @@ fun AddDetailerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF111111),
-        title = { Text("Add New Detailer", color = Color.White, fontWeight = FontWeight.Bold) },
+        title = {
+            Text("Add New Detailer", color = Color.White, fontWeight = FontWeight.Bold)
+        },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 OutlinedTextField(
                     value = firstName,
                     onValueChange = { firstName = it },
@@ -423,7 +481,9 @@ fun AddDetailerDialog(
                         cursorColor = LimeGreen
                     )
                 )
-                if (phone.isNotBlank() && !isPhoneValid(phone)) Text("Invalid phone format", color = Color.Red, fontSize = 12.sp)
+                if (phone.isNotBlank() && !isPhoneValid(phone)) {
+                    Text("Invalid phone format", color = Color.Red, fontSize = 12.sp)
+                }
 
                 OutlinedTextField(
                     value = email,
@@ -439,7 +499,9 @@ fun AddDetailerDialog(
                         cursorColor = LimeGreen
                     )
                 )
-                if (email.isNotBlank() && !isEmailValid(email)) Text("Invalid email format", color = Color.Red, fontSize = 12.sp)
+                if (email.isNotBlank() && !isEmailValid(email)) {
+                    Text("Invalid email format", color = Color.Red, fontSize = 12.sp)
+                }
 
                 OutlinedTextField(
                     value = password,
@@ -449,7 +511,9 @@ fun AddDetailerDialog(
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                        Icon(imageVector = image, contentDescription = null,
+                        Icon(
+                            imageVector = image,
+                            contentDescription = null,
                             modifier = Modifier.clickable { passwordVisible = !passwordVisible },
                             tint = LimeGreen
                         )
@@ -462,26 +526,26 @@ fun AddDetailerDialog(
                         cursorColor = LimeGreen
                     )
                 )
-                if (password.isNotBlank() && password.length < 6) Text("Password must be at least 6 characters", color = Color.Red, fontSize = 12.sp)
+                if (password.isNotBlank() && password.length < 6) {
+                    Text("Password must be at least 6 characters", color = Color.Red, fontSize = 12.sp)
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = { onSave(firstName, lastName, phone, email, password) },
                 enabled = isFormValid,
-                colors = ButtonDefaults.buttonColors(containerColor = if (isFormValid) LimeGreen else Color.Gray)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isFormValid) LimeGreen else Color.Gray
+                )
             ) {
                 Text("Save", color = Color.Black, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Gray) }
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = Color.Gray)
+            }
         }
     )
-}
-
-@Preview(showBackground = true, backgroundColor = 0x000000)
-@Composable
-fun PreviewAdminDetailersScreen() {
-    MaterialTheme { AdminDetailersScreen() }
 }
