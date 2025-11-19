@@ -21,9 +21,12 @@ class ProfileScreenActivity : ComponentActivity() {
                     startActivity(Intent(this, ManageUsersActivity::class.java))
                 },
 
+                //Removed onEditProfile
+                onSaveProfile = { first, last, email, phone, password ->
+                    //Can handle the profile saving here
+                },
 
-                onEditProfile = { },
-                onLogout = { },
+                onLogout = { /* logout logic */ },
 
                 onBack = { finish() }
             )
