@@ -23,8 +23,8 @@ fun MapScreen() {
     // Driver location (your device)
     var driverLocation by remember { mutableStateOf<LatLng?>(null) }
 
-    // CUSTOMER LOCATION (fixed example, later from booking)
-    val customerLocation = LatLng(-33.918861, 18.423300)   // Cape Town
+    // CUSTOMER LOCATION (fixed for testing)
+    val customerLocation = LatLng(-33.918861, 18.423300)
 
     // Location provider
     val fusedLocationClient = remember {
@@ -36,6 +36,8 @@ fun MapScreen() {
         fusedLocationClient.lastLocation.addOnSuccessListener { loc: Location? ->
             if (loc != null) {
                 driverLocation = LatLng(loc.latitude, loc.longitude)
+            } else {
+                driverLocation = LatLng(-33.9200, 18.4200) // fallback for emulator
             }
         }
     }
@@ -43,20 +45,35 @@ fun MapScreen() {
     // CAMERA centers on CUSTOMER
     val cameraState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
-            customerLocation,   // center of map
+            customerLocation,
             14f
         )
+    }
+
+    // === DUMMY ETA & DISTANCE ===
+    val eta = "15 min"
+    val distance = "12 km"
+
+    // === DUMMY ROUTE POINTS (straight line) ===
+    val polylinePoints = remember(driverLocation) {
+        if (driverLocation != null) {
+            listOf(
+                driverLocation!!,
+                customerLocation
+            )
+        } else {
+            emptyList()
+        }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
         Text(
-            text = "Map Overview",
+            text = "ETA: $eta   |   Distance: $distance",
             color = Color.White,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // MAP UI
         GoogleMap(
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,6 +93,11 @@ fun MapScreen() {
                     state = MarkerState(position = it),
                     title = "Your Location"
                 )
+            }
+
+            // ROUTE LINE (DUMMY)
+            if (polylinePoints.isNotEmpty()) {
+                Polyline(points = polylinePoints)
             }
         }
     }
