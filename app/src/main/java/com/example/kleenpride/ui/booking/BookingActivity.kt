@@ -7,31 +7,75 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.*
 import com.example.kleenpride.data.booking.Booking
 import com.example.kleenpride.data.models.BookingState
+import com.example.kleenpride.ui.booking.createbooking.CreateNewBookingScreen
+import com.example.kleenpride.ui.homescreen.ServiceItem
 import com.example.kleenpride.viewmodel.BookingViewModel
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
+import com.example.kleenpride.R
 
-
-/**
- * Activity that serves as the entry point for the Booking feature
- * It creates the BookingViewModel and provides it to the Composable UI
- */
 
 class BookingActivity : ComponentActivity() {
 
-    // Create and retain the ViewModel instance using the viewModels delegate
     private val viewModel: BookingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Fetch all bookings when this screen starts
+        // STEP 1 — If Booking sent from Home or another Activity, save it
+        intent?.let { intent ->
+            val serviceName = intent.getStringExtra("serviceName")
+            if (serviceName != null) {
+                val booking = Booking(
+                    id = "",
+                    userId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                    serviceName = serviceName,
+                    servicePrice = intent.getStringExtra("servicePrice") ?: "",
+                    serviceDuration = intent.getStringExtra("serviceDuration") ?: "",
+                    carType = intent.getStringExtra("carType") ?: "",
+                    date = Date(intent.getLongExtra("date", 0L)),
+                    time = intent.getStringExtra("time") ?: "",
+                    address = intent.getStringExtra("address") ?: "",
+                    paymentMethod = intent.getStringExtra("paymentMethod") ?: "",
+                    status = "Active",
+                    createdAt = Date(),
+                    updatedAt = Date()
+                )
+                viewModel.createBooking(booking)
+            }
+        }
+
+        // STEP 2 — Load all existing bookings
         viewModel.loadBookings()
 
-        // Set the UI content using the BookingScreen Composable
+        // STEP 3 — Prepare UI
         setContent {
-            // State to track which screen to show
             var currentScreen by remember { mutableStateOf("list") }
+
+            // Prefill ServiceItem if intent has data
+            remember {
+                intent?.getStringExtra("serviceName")?.let { name ->
+                    val price = intent.getStringExtra("servicePrice") ?: ""
+                    val duration = intent.getStringExtra("serviceDuration") ?: ""
+                    val description = intent.getStringExtra("serviceDescription") ?: ""
+
+                    // Convert included string to list
+                    val included = intent.getStringExtra("serviceIncluded")?.split(",")?.map { it.trim() } ?: emptyList()
+
+                    // Get image resource ID (pass as Int in intent)
+                    val imageResId = intent.getIntExtra("serviceImage", R.drawable.pridewash)
+
+                    ServiceItem(
+                        name = name,
+                        image = imageResId,
+                        price = price,
+                        duration = duration,
+                        description = description,
+                        included = included
+                    )
+                }
+            }
+
 
             when (currentScreen) {
                 "list" -> BookingScreen(
@@ -41,11 +85,8 @@ class BookingActivity : ComponentActivity() {
 
                 "create" -> CreateNewBookingScreen(
                     onBookingConfirmed = { bookingState ->
-                        // Convert BookingState to Booking and save
                         val booking = bookingStateToBooking(bookingState)
                         viewModel.createBooking(booking)
-
-                        // Navigate back to list
                         currentScreen = "list"
                     }
                 )
@@ -53,18 +94,11 @@ class BookingActivity : ComponentActivity() {
         }
     }
 
-
-    /**
-     * Converts BookingState from the form to a Booking entity for the database
-     */
-
+    // Helper: convert BookingState -> Booking
     private fun bookingStateToBooking(state: BookingState): Booking {
-       // Get current user ID from Firebase Auth
-
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-
         return Booking(
-            id = "", // Firestore will auto-generate this
+            id = "",
             userId = currentUserId,
             serviceName = state.selectedService?.name ?: "",
             servicePrice = state.selectedService?.price ?: "",
@@ -74,7 +108,7 @@ class BookingActivity : ComponentActivity() {
             time = state.selectedTime ?: "",
             address = state.address,
             paymentMethod = state.selectedPaymentMethod?.name ?: "",
-            status = "Active", // New bookings start as Active
+            status = "Active",
             createdAt = Date(),
             updatedAt = Date()
         )

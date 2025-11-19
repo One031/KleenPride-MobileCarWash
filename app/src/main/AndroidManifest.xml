@@ -27,6 +27,11 @@
             android:exported="true" />
 
         <activity
+            android:name=".ui.booking.createbooking.CreateBookingActivity"
+            android:exported="true" />
+
+
+        <activity
             android:name=".ui.profile.ProfileActivity"
             android:exported="true" />
 

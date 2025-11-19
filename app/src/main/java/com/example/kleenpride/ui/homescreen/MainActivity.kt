@@ -40,6 +40,8 @@ import com.example.kleenpride.viewmodel.UserDataViewModel
 import com.example.kleenpride.viewmodel.VehicleViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +62,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                locationViewModel: LocationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val context = LocalContext.current
-    val today = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault()).format(Date())
+    SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault()).format(Date())
 
     var selectedService by remember { mutableStateOf<ServiceItem?>(null) }
     var showDialog by remember { mutableStateOf(false) }
@@ -68,7 +70,6 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
     val userData by viewModel.userData.observeAsState()
     val vehicles by vehicleViewModel.vehicles.observeAsState(emptyList())
     val locations by locationViewModel.locations.observeAsState(emptyList())
-    val error by viewModel.error.observeAsState()
 
     LaunchedEffect(Unit) {
         vehicleViewModel.loadVehicles()
@@ -188,7 +189,13 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
                     fontSize = 18.sp
                 )
                 Button(
-                    onClick = { Toast.makeText(context, "Book Now clicked", Toast.LENGTH_SHORT).show() },
+                    onClick = {
+                        val intent = android.content.Intent(
+                            context,
+                            com.example.kleenpride.ui.booking.createbooking.CreateBookingActivity::class.java
+                        )
+                        context.startActivity(intent)
+                    },
                     modifier = Modifier.padding(top = 8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = LimeGreen)
                 ) {
@@ -317,6 +324,7 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
 }
 
 // --- Models ---
+@Parcelize
 data class ServiceItem(
     val name: String,
     val image: Int,
@@ -324,7 +332,7 @@ data class ServiceItem(
     val duration: String,
     val description: String,
     val included: List<String>
-)
+) : Parcelable
 
 // --- Popup Dialog ---
 @Composable
