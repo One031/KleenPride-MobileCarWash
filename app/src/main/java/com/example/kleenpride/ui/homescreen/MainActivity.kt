@@ -43,6 +43,7 @@ import java.util.*
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import android.content.Intent
+
 import com.example.kleenpride.ui.booking.CreateBookingActivity
 
 class MainActivity : ComponentActivity() {
@@ -192,10 +193,14 @@ fun HomeScreen(
                 )
                 Button(
                     onClick = {
-                        val intent = android.content.Intent(
-                            context,
-                            CreateBookingActivity::class.java
-                        )
+                        val defaultVehicle = vehicles.firstOrNull { it.id == userData?.defaultVehicleId } ?: vehicles.firstOrNull()
+                        val defaultLocation = locations.firstOrNull { it.id == userData?.defaultAddressId } ?: locations.firstOrNull()
+
+                        // Create intent with auto-fill data
+                        val intent = Intent(context, CreateBookingActivity::class.java).apply {
+                            putExtra("preselectedLocation", defaultLocation?.address ?: "")
+                            putExtra("preselectedCarType", defaultVehicle?.type ?: "")
+                        }
                         context.startActivity(intent)
                     },
                     modifier = Modifier.padding(top = 8.dp),
@@ -320,7 +325,6 @@ fun HomeScreen(
             onBookClick = { service ->
                 showDialog = false
 
-                // Navigate to CreateBookingActivity with ALL details
                 val intent = Intent(context, CreateBookingActivity::class.java).apply {
                     // Service details
                     putExtra("preselectedServiceName", service.name)
@@ -328,7 +332,7 @@ fun HomeScreen(
                     putExtra("preselectedServiceDuration", service.duration)
 
                     // Location details
-                    putExtra("preselectedAddress", defaultLocation?.address)
+                    putExtra("preselectedLocation", defaultLocation?.address)
 
                     // Vehicle details
                     putExtra("preselectedCarType", defaultVehicle?.type)
