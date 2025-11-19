@@ -14,6 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KleenPride">
 
+        <!-- ⭐ KEEP YOUR MAPS API KEY -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCPJVMwxvwU5HIUW1Layws7G_mtM-wyF0s" />
+
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false" />
@@ -31,17 +36,14 @@
             android:exported="true" />
 
         <activity android:name=".ui.profile.accinfo.AccountDetailsActivity" />
-
         <activity android:name=".ui.profile.garage.MyGarageActivity" />
-
         <activity android:name=".ui.profile.location.MyLocationsActivity" />
 
         <activity
             android:name=".ui.alerts.AlertsActivity"
             android:exported="true" />
 
-        <!-- ADMIN SCREENS YOU ADDED -->
-
+        <!-- Admin screens -->
         <activity
             android:name=".admin.ui.profile.ProfileScreenActivity"
             android:exported="true" />
@@ -60,19 +62,21 @@
             </intent-filter>
         </activity>
 
-        <!-- RouterActivity - called after login/signup -->
+        <!-- Router -->
         <activity
             android:name=".RouterActivity"
             android:exported="false" />
 
+        <!-- Detailer main -->
         <activity
             android:name=".detailers.ui.homescreen.DetailerMainActivity"
             android:exported="false" />
 
-        <!-- Admin Dashboard -->
+        <!-- Admin Overview -->
         <activity
             android:name=".admin.ui.overview.AdminOverviewActivity"
             android:exported="false" />
 
     </application>
+
 </manifest>
