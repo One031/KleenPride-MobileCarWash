@@ -45,6 +45,10 @@ android {
 
 dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
+//location
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.maps.android:maps-compose:4.4.1")
 
     // Material Icons
     implementation("androidx.compose.material3:material3:1.3.0")

@@ -125,7 +125,7 @@ fun BookingScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ⭐ Here's the MAP at the bottom
+        //  Heres the MAP at the bottom
         MapScreen()
 
         Spacer(modifier = Modifier.height(24.dp))
