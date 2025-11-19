@@ -1,4 +1,4 @@
-package com.example.kleenpride.ui.booking
+package com.example.kleenpride.ui.booking.createbooking
 
 import android.R.color.black
 import android.annotation.SuppressLint
@@ -377,12 +377,6 @@ private fun loadCarTypes() =  listOf(
     CarType(1, "Sedan"),
     CarType(2, "SUV", "🚙"),
     CarType(3, "Hatchback", "🚐")
-)
-
-private fun loadPaymentMethods() = listOf(
-    PaymentMethod("1", "Visa", "4242", "💳"),
-    PaymentMethod("2", "Mastercard", "5678", "💳"),
-    PaymentMethod("3", "Cash", "", "💵")
 )
 
 private fun generateTimeSlots() = (8..17).flatMap { hour ->
