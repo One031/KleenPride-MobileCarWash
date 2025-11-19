@@ -22,6 +22,7 @@
         </DialogSelection>
       </SelectionState>
       <SelectionState runConfigName="PreviewAdminBookingsScreen">
+      <SelectionState runConfigName="PreviewAdminDetailersScreen">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
