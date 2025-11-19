@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kleenpride.R
+import com.example.kleenpride.RouterActivity
 import com.example.kleenpride.ui.components.CustomButton
 import com.example.kleenpride.ui.components.CustomTextField
 import com.example.kleenpride.ui.components.OrSeparator
@@ -71,6 +72,16 @@ class LoginActivity : ComponentActivity() {
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // Observe login success and navigate to RouterActivity
+        authViewModel.userLiveData.observe(this) { user ->
+            if (user != null) {
+                // Login successful - navigate to RouterActivity
+                startActivity(Intent(this, RouterActivity::class.java))
+                finish()
+            }
+        }
+
 
         /**
          * Compose content: pass two lambdas into the UI:
@@ -123,10 +134,6 @@ fun LoginScreenUI(
             if (user != null) {
                 // Show a quick success message
                 message = "Login Successful!"
-
-                // Navigate to MainActivity
-                val intent = Intent(context, com.example.kleenpride.ui.homescreen.MainActivity::class.java)
-                context.startActivity(intent)
 
             }
         }

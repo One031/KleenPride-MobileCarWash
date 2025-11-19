@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.kleenpride.data.models.UserRole
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -48,7 +49,7 @@ class AccountSetupViewModel : ViewModel() {
      * Save basic info immediately after registration
      */
 
-   fun saveBasicInfo() {
+   fun saveBasicInfo(role: UserRole = UserRole.CUSTOMER) {
        val uid = auth.currentUser?.uid ?: run {
            _updateError.value = "User not authenticated"
            return
@@ -56,7 +57,9 @@ class AccountSetupViewModel : ViewModel() {
 
         val data = mapOf(
             "firstName" to firstName.value,
-            "lastName" to lastName.value
+            "lastName" to lastName.value,
+            "role" to role.name,
+            "createdAt" to com.google.firebase.Timestamp.now()
         )
 
         firestore.collection("users").document(uid)

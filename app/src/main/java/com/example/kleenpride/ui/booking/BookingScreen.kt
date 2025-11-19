@@ -1,7 +1,6 @@
 package com.example.kleenpride.ui.booking
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,11 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.kleenpride.data.booking.Booking
 import com.example.kleenpride.ui.components.BottomNavBar
 import com.example.kleenpride.ui.theme.LimeGreen
 import com.example.kleenpride.viewmodel.BookingViewModel
@@ -33,19 +30,19 @@ import com.example.kleenpride.viewmodel.BookingViewModel
  * BookingScreen - Displays user's active and recent bookings
  */
 @Composable
-fun BookingScreen(viewModel: BookingViewModel = viewModel(),
-                  onCreateBooking: () -> Unit = {}) {
+fun BookingScreen(
+    viewModel: BookingViewModel = viewModel(),
+    onCreateBooking: () -> Unit = {}
+) {
 
-   // Observe bookings list from the ViewModel
     val bookings by viewModel.bookings.observeAsState(emptyList())
 
-    // If there are no bookings in the database show the empty screen
+    // No bookings? Show empty screen then return
     if (bookings.isEmpty()) {
         EmptyBookingScreen(onCreateBookingClick = onCreateBooking)
         return
     }
 
-    // Find the active booking if available
     val activeBooking = bookings.firstOrNull { it.status == "Active" }
 
     Column(
@@ -56,7 +53,6 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel(),
     ) {
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Page Title
         Text(
             text = "Bookings",
             color = Color.White,
@@ -65,8 +61,7 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel(),
             modifier = Modifier.padding(bottom = 20.dp)
         )
 
-        // Active Booking tile
-        if (activeBooking != null){
+        if (activeBooking != null) {
             ActiveBookingCard(activeBooking)
         } else {
             NoActiveBookingCard()
@@ -74,27 +69,25 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel(),
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Booking Button
+        // Create Booking button
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 7.dp) // align with rest of layout
+                .padding(horizontal = 7.dp)
         ) {
             Button(
-                onClick =  onCreateBooking,
+                onClick = onCreateBooking,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LimeGreen
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = LimeGreen),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon (
+                    Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
                         tint = Color.Black,
@@ -112,7 +105,7 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel(),
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Recent Bookings Section
+        // Recent Bookings
         Text(
             text = "Recent Bookings",
             color = Color.White,
@@ -121,20 +114,22 @@ fun BookingScreen(viewModel: BookingViewModel = viewModel(),
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Lazy Column to display recent bookings
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp), // spacing between bookings
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(bookings.take(3)) { booking -> // show only 3 bookings
+            items(bookings.take(3)) { booking ->
                 BookingItem(booking)
             }
         }
 
-        // Making the NavBar be at the bottom
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // Sharing the navbar with the booking icon
+        //  Heres the MAP at the bottom
+        MapScreen()
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         BottomNavBar(currentScreen = "booking")
     }
 }
