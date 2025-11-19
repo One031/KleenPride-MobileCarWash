@@ -12,24 +12,20 @@ class ProfileScreenActivity : ComponentActivity() {
 
         setContent {
             AdminProfileScreen(
-                adminName = "Leo Lennards",
-                email = "leo@kleenpride.com",
+                adminName = "Andrew Haynes",
+                email = "AndrewH@kleenpride.com",
                 phone = "+27 82 262 6130",
                 memberSince = "Jan 2024",
 
                 onManageUsers = {
-                    startActivity(
-                        Intent(
-                            this,
-                            ManageUsersActivity::class.java
-                        )
-                    )
+                    startActivity(Intent(this, ManageUsersActivity::class.java))
                 },
 
-                onViewReports = { /* later */ },
-                onSystemSettings = { /* later */ },
-                onEditProfile = { /* later */ },
-                onLogout = { /* later */ }
+
+                onEditProfile = { },
+                onLogout = { },
+
+                onBack = { finish() }
             )
         }
     }

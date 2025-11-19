@@ -19,10 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kleenpride.ui.theme.LimeGreen
 
-
-
-
-
 @Composable
 fun AdminProfileScreen(
     adminName: String,
@@ -30,10 +26,9 @@ fun AdminProfileScreen(
     phone: String,
     memberSince: String,
     onManageUsers: () -> Unit = {},
-    onViewReports: () -> Unit = {},
-    onSystemSettings: () -> Unit = {},
     onEditProfile: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     val background = Color.Black
     val surface = Color(0xFF111111)
@@ -47,6 +42,18 @@ fun AdminProfileScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        // 🔙 Back Button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onBack() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+            Spacer(modifier = Modifier.width(6.dp))
+            Text("Back", color = Color.White, fontSize = 16.sp)
+        }
 
         // Header
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
@@ -75,7 +82,7 @@ fun AdminProfileScreen(
             Text("Member since $memberSince", color = onSurface.copy(alpha = 0.6f), fontSize = 12.sp)
         }
 
-        // Contact section
+        // Contact Info
         Card(
             colors = CardDefaults.cardColors(containerColor = surface),
             shape = RoundedCornerShape(12.dp),
@@ -95,7 +102,7 @@ fun AdminProfileScreen(
             }
         }
 
-        // Admin tools section
+        // Admin tools (ONLY Manage Users now)
         Card(
             colors = CardDefaults.cardColors(containerColor = surface),
             shape = RoundedCornerShape(12.dp),
@@ -103,8 +110,6 @@ fun AdminProfileScreen(
         ) {
             Column(modifier = Modifier.padding(4.dp)) {
                 AdminActionItem("Manage Users", Icons.Default.Group, onManageUsers)
-                AdminActionItem("View Reports", Icons.Default.Assessment, onViewReports)
-                AdminActionItem("System Settings", Icons.Default.Settings, onSystemSettings)
             }
         }
 
@@ -126,7 +131,7 @@ fun AdminProfileScreen(
             }
         }
 
-        // Logout button
+        // Logout
         Card(
             colors = CardDefaults.cardColors(containerColor = surface),
             shape = RoundedCornerShape(12.dp),
@@ -169,8 +174,8 @@ private fun AdminActionItem(
 @Composable
 fun AdminProfilePreview() {
     AdminProfileScreen(
-        adminName = "Alicia Keys",
-        email = "admin@kleenpride.com",
+        adminName = "Andrew Haynes",
+        email = "AndrewH@kleenpride.com",
         phone = "+27 82 262 6130",
         memberSince = "Jan 2024"
     )
