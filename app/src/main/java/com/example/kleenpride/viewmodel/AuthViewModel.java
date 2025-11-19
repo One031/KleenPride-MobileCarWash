@@ -15,7 +15,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
  */
 public class AuthViewModel extends ViewModel {
 
-    // Repositoru instance for authentication operations
+    // Repository instance for authentication operations
     private final AuthRepository authRepo;
 
     // LiveData to observe the currently logged-in user

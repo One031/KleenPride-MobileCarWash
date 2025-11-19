@@ -42,8 +42,6 @@
         <activity android:name=".ui.profile.location.MyLocationsActivity" />
 
 
-
-
         <activity
             android:name=".ui.alerts.AlertsActivity"
             android:exported="true">
@@ -60,6 +58,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- RouterActivity - called after login/signup -->
+        <activity
+            android:name=".RouterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".detailers.ui.homescreen.DetailerMainActivity"
+            android:exported="false" />
+
+        <!-- Admin Dashboard -->
+        <activity
+            android:name=".admin.ui.overview.AdminOverviewActivity"
+            android:exported="false" />
 
     </application>
 </manifest>

@@ -433,12 +433,3 @@ fun LocationsButton(onClick: () -> Unit) {
         }
     }
 }
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ProfileScreenPreview() {
-    KleenPrideTheme {
-        ProfileScreen()
-    }
-}
