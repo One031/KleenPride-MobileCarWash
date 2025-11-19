@@ -2,10 +2,8 @@ package com.example.kleenpride.admin.ui.bookings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
@@ -19,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import com.example.kleenpride.admin.ui.overview.AdminTopBar
 import com.example.kleenpride.ui.theme.LimeGreen
 
@@ -45,7 +45,7 @@ fun AdminBookingsScreen() {
 
     var query by remember { mutableStateOf("") }
 
-    //Hardcoded list for now, must be replaced with the firebase nommer
+    //Hardcoded list for now
     val bookings = listOf(
         AdminBooking(
             id = "KP-2025-001",
@@ -105,7 +105,6 @@ fun AdminBookingsScreen() {
         modifier = Modifier
             .background(Color.Black)
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
     ) {
         AdminTopBar()
 
@@ -116,23 +115,27 @@ fun AdminBookingsScreen() {
 
         Spacer(Modifier.height(12.dp))
 
-        filteredBookings.forEach { booking ->
-            AdminBookingCard(
-                id = booking.id,
-                status1 = booking.status1,
-                status1Color = booking.status1Color,
-                status2 = booking.status2,
-                status2Color = booking.status2Color,
-                name = booking.name,
-                detailer = booking.detailer,
-                service = booking.service,
-                car = booking.car,
-                date = booking.date,
-                price = booking.price
-            )
+        // LazyColumn for proper scrolling & correct search behavior
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
+            items(filteredBookings) { booking ->
+                AdminBookingCard(
+                    id = booking.id,
+                    status1 = booking.status1,
+                    status1Color = booking.status1Color,
+                    status2 = booking.status2,
+                    status2Color = booking.status2Color,
+                    name = booking.name,
+                    detailer = booking.detailer,
+                    service = booking.service,
+                    car = booking.car,
+                    date = booking.date,
+                    price = booking.price
+                )
+            }
         }
-
-        Spacer(Modifier.height(80.dp))
     }
 }
 

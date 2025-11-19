@@ -25,6 +25,7 @@ fun AdminBottomNavBar(
         containerColor = darkBackground,
         modifier = Modifier.height(65.dp)
     ) {
+
         NavigationBarItem(
             selected = selectedItem == "Overview",
             onClick = { onItemSelected("Overview") },
@@ -42,6 +43,7 @@ fun AdminBottomNavBar(
                 )
             }
         )
+
         NavigationBarItem(
             selected = selectedItem == "Bookings",
             onClick = { onItemSelected("Bookings") },
@@ -59,6 +61,7 @@ fun AdminBottomNavBar(
                 )
             }
         )
+
         NavigationBarItem(
             selected = selectedItem == "Detailers",
             onClick = { onItemSelected("Detailers") },
@@ -76,6 +79,7 @@ fun AdminBottomNavBar(
                 )
             }
         )
+
         NavigationBarItem(
             selected = selectedItem == "Customers",
             onClick = { onItemSelected("Customers") },

@@ -10,9 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,13 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsPadding
+
 import com.example.kleenpride.ui.theme.LimeGreen
 import com.example.kleenpride.admin.ui.components.AdminBottomNavBar
 import com.example.kleenpride.admin.ui.bookings.AdminBookingsScreen
 import com.example.kleenpride.admin.ui.detailers.AdminDetailersScreen
 import com.example.kleenpride.admin.ui.customers.AdminCustomersScreen
 import com.example.kleenpride.admin.ui.profile.ProfileScreenActivity
-import androidx.compose.foundation.shape.CircleShape
 
 class AdminOverviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,10 +51,12 @@ fun AdminMainScreen() {
             .fillMaxSize()
             .background(darkBackground)
     ) {
+
+        // Content area
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 70.dp)
+                .padding(bottom = 75.dp) // Enough space for bottom nav bar
         ) {
             when (selectedTab) {
                 "Overview" -> AdminOverviewScreen()
@@ -64,9 +66,11 @@ fun AdminMainScreen() {
             }
         }
 
+        // Bottom Navigation — SAFE placement
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .windowInsetsPadding(WindowInsets.navigationBars) // Prevent cutoff on gesture nav
         ) {
             AdminBottomNavBar(
                 selectedItem = selectedTab,
@@ -88,6 +92,7 @@ fun AdminOverviewScreen() {
         AdminStatsSection()
         TodayPerformanceCard()
         RecentBookingsSection()
+
         Spacer(Modifier.height(80.dp))
     }
 }
@@ -105,34 +110,33 @@ fun AdminTopBar() {
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
-            Spacer(Modifier.width(12.dp))
-
-            Column {
-                Text("Admin Dashboard", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text("KleenPride Management", color = Color.Gray, fontSize = 13.sp)
-            }
+        Column {
+            Text(
+                "Admin Dashboard",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "KleenPride Management",
+                color = Color.Gray,
+                fontSize = 13.sp
+            )
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White)
-            Spacer(Modifier.width(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(LimeGreen)
-                    .clickable {
-                        context.startActivity(
-                            Intent(context, ProfileScreenActivity::class.java)
-                        )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Text("A", color = Color.Black, fontWeight = FontWeight.Bold)
-            }
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(LimeGreen)
+                .clickable {
+                    context.startActivity(
+                        Intent(context, ProfileScreenActivity::class.java)
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Text("A", color = Color.Black, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -327,11 +331,7 @@ fun BookingCard(
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true,
-    backgroundColor = 0x000000
-)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AdminOverviewPreview() {
     AdminMainScreen()
