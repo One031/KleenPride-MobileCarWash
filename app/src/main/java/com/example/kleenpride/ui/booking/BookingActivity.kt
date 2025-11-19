@@ -7,7 +7,6 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.*
 import com.example.kleenpride.data.booking.Booking
 import com.example.kleenpride.data.models.BookingState
-import com.example.kleenpride.ui.booking.createbooking.CreateNewBookingScreen
 import com.example.kleenpride.ui.homescreen.ServiceItem
 import com.example.kleenpride.viewmodel.BookingViewModel
 import com.google.firebase.auth.FirebaseAuth

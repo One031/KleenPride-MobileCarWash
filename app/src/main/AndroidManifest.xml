@@ -32,7 +32,7 @@
             android:exported="true" />
 
         <activity
-            android:name=".ui.booking.createbooking.CreateBookingActivity"
+            android:name=".ui.booking.CreateBookingActivity"
             android:exported="true" />
 
 

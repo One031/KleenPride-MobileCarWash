@@ -43,6 +43,7 @@ import java.util.*
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import android.content.Intent
+import com.example.kleenpride.ui.booking.CreateBookingActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -193,7 +194,7 @@ fun HomeScreen(
                     onClick = {
                         val intent = android.content.Intent(
                             context,
-                            com.example.kleenpride.ui.booking.createbooking.CreateBookingActivity::class.java
+                            CreateBookingActivity::class.java
                         )
                         context.startActivity(intent)
                     },
@@ -320,7 +321,7 @@ fun HomeScreen(
                 showDialog = false
 
                 // Navigate to CreateBookingActivity with ALL details
-                val intent = Intent(context, com.example.kleenpride.ui.booking.createbooking.CreateBookingActivity::class.java).apply {
+                val intent = Intent(context, CreateBookingActivity::class.java).apply {
                     // Service details
                     putExtra("preselectedServiceName", service.name)
                     putExtra("preselectedServicePrice", service.price)

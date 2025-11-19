@@ -1,4 +1,4 @@
-package com.example.kleenpride.ui.booking.createbooking
+package com.example.kleenpride.ui.booking
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

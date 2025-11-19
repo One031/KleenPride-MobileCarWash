@@ -1,11 +1,10 @@
-package com.example.kleenpride.ui.booking.createbooking
+package com.example.kleenpride.ui.booking
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.kleenpride.data.models.BookingState
-import com.example.kleenpride.ui.booking.BookingActivity
 
 class CreateBookingActivity : ComponentActivity() {
 
