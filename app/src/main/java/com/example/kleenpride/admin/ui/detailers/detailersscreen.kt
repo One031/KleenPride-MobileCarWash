@@ -9,15 +9,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +31,7 @@ import com.example.kleenpride.admin.ui.overview.AdminTopBar
 import com.example.kleenpride.ui.theme.LimeGreen
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.regex.Pattern
 
 class AdminDetailersActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,9 +40,10 @@ class AdminDetailersActivity : ComponentActivity() {
     }
 }
 
-// Data class for detailers
+// Data class for the detailers
 data class Detailer(
-    val name: String,
+    val firstName: String,
+    val lastName: String,
     val email: String,
     val phone: String,
     val rating: Float = 0f,
@@ -54,7 +62,8 @@ fun AdminDetailersScreen() {
         mutableStateOf(
             listOf(
                 Detailer(
-                    name = "James Smith",
+                    firstName = "James",
+                    lastName = "Smith",
                     email = "James.smith@kleenpride.com",
                     phone = "+27 82 123 4567",
                     rating = 4.8f,
@@ -63,7 +72,8 @@ fun AdminDetailersScreen() {
                     joinDate = "Jan 2024"
                 ),
                 Detailer(
-                    name = "Ja Rule",
+                    firstName = "Ja",
+                    lastName = "Rule",
                     email = "Ja.rule@kleenpride.com",
                     phone = "+27 83 234 5678",
                     rating = 4.6f,
@@ -72,7 +82,8 @@ fun AdminDetailersScreen() {
                     joinDate = "Feb 2024"
                 ),
                 Detailer(
-                    name = "Cornell Haynes",
+                    firstName = "Cornell",
+                    lastName = "Haynes",
                     email = "Cornell.haynes@kleenpride.com",
                     phone = "+27 84 345 6789",
                     rating = 4.9f,
@@ -129,8 +140,14 @@ fun AdminDetailersScreen() {
         if (showAddDialog) {
             AddDetailerDialog(
                 onDismiss = { showAddDialog = false },
-                onSave = { name, email, phone ->
-                    val newDetailer = Detailer(name = name, email = email, phone = phone)
+                onSave = { firstName, lastName, phone, email, password ->
+                    val newDetailer = Detailer(
+                        firstName = firstName,
+                        lastName = lastName,
+                        phone = phone,
+                        email = email
+
+                    )
                     detailers = detailers + newDetailer
                     showAddDialog = false
                 }
@@ -200,7 +217,7 @@ fun DetailerCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        detailer.name.first().toString(),
+                        detailer.firstName.first().toString(),
                         color = Color.Black,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -212,7 +229,7 @@ fun DetailerCard(
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            detailer.name,
+                            "${detailer.firstName} ${detailer.lastName}",
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -336,14 +353,27 @@ fun StatusChip(text: String, color: Color) {
     }
 }
 
+//Detailer Dialog
 @Composable
 fun AddDetailerDialog(
     onDismiss: () -> Unit,
-    onSave: (String, String, String) -> Unit
+    onSave: (String, String, String, String, String) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    fun isEmailValid(email: String) = Pattern.compile("[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+").matcher(email).matches()
+    fun isPhoneValid(phone: String) = Pattern.compile("^\\+?[0-9]{10,15}\$").matcher(phone).matches()
+
+    val isFormValid = firstName.isNotBlank() &&
+            lastName.isNotBlank() &&
+            phone.isNotBlank() && isPhoneValid(phone) &&
+            email.isNotBlank() && isEmailValid(email) &&
+            password.length >= 6
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -352,9 +382,9 @@ fun AddDetailerDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Full Name", color = Color.Gray) },
+                    value = firstName,
+                    onValueChange = { firstName = it },
+                    label = { Text("First Name", color = Color.Gray) },
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1A1A1A),
@@ -364,10 +394,11 @@ fun AddDetailerDialog(
                         cursorColor = LimeGreen
                     )
                 )
+
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email Address", color = Color.Gray) },
+                    value = lastName,
+                    onValueChange = { lastName = it },
+                    label = { Text("Last Name", color = Color.Gray) },
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1A1A1A),
@@ -377,11 +408,13 @@ fun AddDetailerDialog(
                         cursorColor = LimeGreen
                     )
                 )
+
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
                     label = { Text("Phone Number", color = Color.Gray) },
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1A1A1A),
                         unfocusedContainerColor = Color(0xFF1A1A1A),
@@ -390,19 +423,60 @@ fun AddDetailerDialog(
                         cursorColor = LimeGreen
                     )
                 )
+                if (phone.isNotBlank() && !isPhoneValid(phone)) Text("Invalid phone format", color = Color.Red, fontSize = 12.sp)
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email Address", color = Color.Gray) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1A1A1A),
+                        unfocusedContainerColor = Color(0xFF1A1A1A),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = LimeGreen
+                    )
+                )
+                if (email.isNotBlank() && !isEmailValid(email)) Text("Invalid email format", color = Color.Red, fontSize = 12.sp)
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password", color = Color.Gray) },
+                    singleLine = true,
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        Icon(imageVector = image, contentDescription = null,
+                            modifier = Modifier.clickable { passwordVisible = !passwordVisible },
+                            tint = LimeGreen
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1A1A1A),
+                        unfocusedContainerColor = Color(0xFF1A1A1A),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = LimeGreen
+                    )
+                )
+                if (password.isNotBlank() && password.length < 6) Text("Password must be at least 6 characters", color = Color.Red, fontSize = 12.sp)
             }
         },
         confirmButton = {
             Button(
-                onClick = {
-                    if (name.isNotBlank() && email.isNotBlank() && phone.isNotBlank()) {
-                        onSave(name, email, phone)
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = LimeGreen)
-            ) { Text("Save", color = Color.Black, fontWeight = FontWeight.Bold) }
+                onClick = { onSave(firstName, lastName, phone, email, password) },
+                enabled = isFormValid,
+                colors = ButtonDefaults.buttonColors(containerColor = if (isFormValid) LimeGreen else Color.Gray)
+            ) {
+                Text("Save", color = Color.Black, fontWeight = FontWeight.Bold)
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Gray) } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Gray) }
+        }
     )
 }
 
@@ -410,26 +484,4 @@ fun AddDetailerDialog(
 @Composable
 fun PreviewAdminDetailersScreen() {
     MaterialTheme { AdminDetailersScreen() }
-}
-
-@Preview(showBackground = true, backgroundColor = 0x000000)
-@Composable
-fun PreviewDetailerCard() {
-    MaterialTheme {
-        DetailerCard(
-            detailer = Detailer(
-                name = "Ja Rule",
-                email = "Ja.rule@kleenpride.com",
-                phone = "+27 82 123 4567",
-                rating = 4.8f,
-                totalJobs = 46,
-                earnings = 18000,
-                status = "ACTIVE",
-                statusColor = LimeGreen,
-                joinDate = "Jan 2024"
-            ),
-            onToggleStatus = {},
-            onDelete = {}
-        )
-    }
 }
