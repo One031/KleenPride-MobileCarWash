@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import android.content.Intent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,9 +58,10 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-               vehicleViewModel: VehicleViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-               locationViewModel: LocationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+fun HomeScreen(
+    viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    vehicleViewModel: VehicleViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    locationViewModel: LocationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val context = LocalContext.current
     SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault()).format(Date())
@@ -78,7 +80,6 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
 
     // Find the default vehicle using the userData.defaultVehicleId
     val defaultVehicle = vehicles.firstOrNull { it.id == userData?.defaultVehicleId } ?: vehicles.firstOrNull()
-
     val defaultLocation = locations.firstOrNull {it.id == userData?.defaultAddressId} ?: locations.firstOrNull()
 
     val carBrand = defaultVehicle?.make ?: "Loading..."
@@ -227,11 +228,11 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
         )
 
         val services = listOf(
-            ServiceItem("Pride Wash", R.drawable.pridewash, "R110 - R140", "30 min", "Quick exterior wash to keep your car looking fresh",
+            ServiceItem("Pride Wash", R.drawable.pridewash, "R110", "30 min", "Quick exterior wash to keep your car looking fresh",
                 listOf("Full Exterior Was", "Interior Clean", "Clean Windows", "Floor Mats Vacuum", "Seat Vacuum", "Tyre Shine", "Full Car Trim", "Car Perfume")),
-            ServiceItem("Wash & Go", R.drawable.washgo, "R80 - R100", "20 min", "A fast and simple wash for when you’re on the move",
+            ServiceItem("Wash & Go", R.drawable.washgo, "R80", "20 min", "A fast and simple wash for when you’re on the move",
                 listOf("Full Exterior Wash", "Clean Windows", "Tyre shine", "Exterior Trim")),
-            ServiceItem("Interior Detailing", R.drawable.cardetailing, "R50 - R65", "45 min", "Deep interior clean for a spotless finish",
+            ServiceItem("Interior Detailing", R.drawable.cardetailing, "R55", "45 min", "Deep interior clean for a spotless finish",
                 listOf("Full House Vacuum", "Clean Panels", "Dash Board Treatment", "Car Perfume")),
             ServiceItem("Car Valet & Detailing", R.drawable.carvalet, "R450", "60 min", "Complete inside and out detailing service",
                 listOf("Pre Wash", "Full Exterior Wash", "Clean Windows", "Deep Vacuum", "Seats Vacuum & Deep Cleaned", "Floor Mats Vacuum & Deep Cleaned", "Detail Brushing", "Tyre Shine", "Trimming", "Car Perfume"))
@@ -315,9 +316,23 @@ fun HomeScreen(viewModel: UserDataViewModel = androidx.lifecycle.viewmodel.compo
         ServiceDetailsDialog(
             service = selectedService!!,
             onDismiss = { showDialog = false },
-            onBookClick = {
+            onBookClick = { service ->
                 showDialog = false
-                Toast.makeText(context, "Booking ${selectedService!!.name}", Toast.LENGTH_SHORT).show()
+
+                // Navigate to CreateBookingActivity with ALL details
+                val intent = Intent(context, com.example.kleenpride.ui.booking.createbooking.CreateBookingActivity::class.java).apply {
+                    // Service details
+                    putExtra("preselectedServiceName", service.name)
+                    putExtra("preselectedServicePrice", service.price)
+                    putExtra("preselectedServiceDuration", service.duration)
+
+                    // Location details
+                    putExtra("preselectedAddress", defaultLocation?.address)
+
+                    // Vehicle details
+                    putExtra("preselectedCarType", defaultVehicle?.type)
+                }
+                context.startActivity(intent)
             }
         )
     }
@@ -336,7 +351,13 @@ data class ServiceItem(
 
 // --- Popup Dialog ---
 @Composable
-fun ServiceDetailsDialog(service: ServiceItem, onDismiss: () -> Unit, onBookClick: () -> Unit) {
+// In MainActivity.kt - Update the ServiceDetailsDialog "Book This Service" button
+
+fun ServiceDetailsDialog(
+    service: ServiceItem,
+    onDismiss: () -> Unit,
+    onBookClick: (ServiceItem) -> Unit
+) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         containerColor = Color(0xFF1B1B1B),
@@ -349,7 +370,6 @@ fun ServiceDetailsDialog(service: ServiceItem, onDismiss: () -> Unit, onBookClic
                         .height(180.dp)
                         .clip(RoundedCornerShape(16.dp))
                 ) {
-                    // Show the actual service image
                     Image(
                         painter = painterResource(id = service.image),
                         contentDescription = service.name,
@@ -357,7 +377,6 @@ fun ServiceDetailsDialog(service: ServiceItem, onDismiss: () -> Unit, onBookClic
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // Overlay for the price tag and car icon
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
@@ -417,7 +436,7 @@ fun ServiceDetailsDialog(service: ServiceItem, onDismiss: () -> Unit, onBookClic
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = onBookClick,
+                    onClick = { onBookClick(service) },
                     colors = ButtonDefaults.buttonColors(containerColor = LimeGreen),
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                 ) {

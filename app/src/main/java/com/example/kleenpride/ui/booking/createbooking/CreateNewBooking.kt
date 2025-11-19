@@ -1,12 +1,9 @@
 package com.example.kleenpride.ui.booking.createbooking
 
-import android.R.color.black
-import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.kleenpride.data.models.BookingState
@@ -39,21 +35,55 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // Color Constants
-@SuppressLint("ResourceAsColor")
-private val BackgroundBlack = Color(black)
+private val BackgroundBlack = Color(0xFF000000)
 private val CardBlack = Color(0xFF1A1A1A)
 private val TextWhite = Color(0xFFFFFFFF)
 private val TextGray = Color(0xFFB0B0B0)
 private val BorderGray = Color(0xFF2A2A2A)
 
-/**
- * Main booking screen - users select service, date/time, location, and vehicle type
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
+fun CreateNewBookingScreen(
+    preselectedServiceName: String = "",
+    preselectedServicePrice: String = "",
+    preselectedServiceDuration: String = "",
+    preselectedLocation: String = "",
+    preselectedCarType: String = "",
+    onBookingConfirmed: (BookingState) -> Unit = {}
+) {
+    val services = remember { loadServices() }
+    val carTypes = remember { loadCarTypes() }
+    val timeSlots = remember { generateTimeSlots() }
 
-    var bookingState by remember { mutableStateOf(BookingState()) }
+    // Find and set preselected service if provided
+    val initialService = remember(preselectedServiceName) {
+        if (preselectedServiceName.isNotEmpty()) {
+            services.find { it.name == preselectedServiceName }
+        } else {
+            null
+        }
+    }
+
+    // Find preselected car type
+    val initialCarType = remember(preselectedCarType) {
+        if (preselectedCarType.isNotEmpty()) {
+            carTypes.find { it.name == preselectedCarType }
+        } else {
+            null
+        }
+    }
+
+    // Initialize booking state with ALL preselected values
+    var bookingState by remember {
+        mutableStateOf(
+            BookingState(
+                selectedService = initialService,
+                selectedCarType = initialCarType,
+                address = preselectedLocation
+            )
+        )
+    }
+
     var expandedSection by remember { mutableStateOf<String?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -69,6 +99,15 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
         }
     }
 
+    // Update booking state when preselected values change (safety check)
+    LaunchedEffect(initialService, initialCarType, preselectedLocation) {
+        bookingState = bookingState.copy(
+            selectedService = initialService ?: bookingState.selectedService,
+            selectedCarType = initialCarType ?: bookingState.selectedCarType,
+            address = preselectedLocation.ifEmpty { bookingState.address }
+        )
+    }
+
     // Get current time in milliseconds
     val currentTimeMillis = System.currentTimeMillis()
 
@@ -76,26 +115,18 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = currentTimeMillis,
         initialDisplayedMonthMillis = null,
-        // Restricting the year range
         yearRange = IntRange(2024, 2030),
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                // Only allow dates from today onwards
                 return utcTimeMillis >= currentTimeMillis
             }
 
             override fun isSelectableYear(year: Int): Boolean {
-                // Only allow current year and future years
                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                 return year >= currentYear
             }
         }
     )
-
-
-    val services = remember { loadServices() }
-    val carTypes = remember { loadCarTypes() }
-    val timeSlots = remember { generateTimeSlots() }
 
     Column(
         modifier = Modifier
@@ -136,7 +167,7 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
             if (expandedSection == "service") {
                 services.forEach { service ->
                     OptionCard(
-                        isSelected = bookingState.selectedService?.id == service.id,
+                        isSelected = bookingState.selectedService?.name == service.name,
                         onClick = {
                             bookingState = bookingState.copy(selectedService = service)
                             expandedSection = null
@@ -177,7 +208,7 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
                                 color = if (bookingState.selectedDate != null) TextWhite else TextGray,
                                 modifier = Modifier.weight(1f)
                             )
-                            Spacer(modifier = Modifier.width(12.dp)) // Space between text and icon
+                            Spacer(modifier = Modifier.width(12.dp))
                             Icon(
                                 Icons.Default.CalendarToday,
                                 contentDescription = "Select date",
@@ -237,7 +268,7 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
             if (expandedSection == "carType") {
                 carTypes.forEach { carType ->
                     OptionCard(
-                        isSelected = bookingState.selectedCarType?.id == carType.id,
+                        isSelected = bookingState.selectedCarType?.name == carType.name,
                         onClick = {
                             bookingState = bookingState.copy(selectedCarType = carType)
                             expandedSection = null
@@ -252,7 +283,6 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
             SectionHeader("Payment Method")
 
             if (isLoadingPayments) {
-                // Show loading indicator
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = CardBlack),
@@ -269,7 +299,6 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
                     }
                 }
             } else if (paymentMethods.isEmpty()) {
-                // No payment methods available
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = CardBlack),
@@ -287,7 +316,6 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
                     }
                 }
             } else {
-                // Show payment method selection
                 SelectionCard(
                     selectedItem = bookingState.selectedPaymentMethod,
                     isExpanded = expandedSection == "payment",
@@ -319,7 +347,7 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
                 enabled = bookingState.isValid(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = LimeGreen,
-                    contentColor = Black,
+                    contentColor = Color.Black,
                     disabledContainerColor = BorderGray
                 )
             ) {
@@ -367,10 +395,10 @@ fun CreateNewBookingScreen(onBookingConfirmed: (BookingState) -> Unit = {}) {
 
 // Data loaders
 private fun loadServices() =  listOf(
-    Service(1, "Pride Wash", "30 min", "R350", "Basic wash and vacuum"),
-    Service(2, "Premium Detail", "45 min", "R1200", "Wash, wax, and detailing"),
-    Service(3, "Deluxe Clean", "60 min", "R750", "Full deep cleaning"),
-    Service(4, "Executive Package", "90 min", "R950", "Complete detailing")
+    Service(1, "Pride Wash", "30 min", "R110", "Quick exterior wash to keep your car looking fresh"),
+    Service(2, "Wash & Go", "20 min", "R80", "A fast and simple wash for when you're on the move"),
+    Service(3, "Interior Detailing", "45 min", "R55", "Deep interior clean for a spotless finish"),
+    Service(4, "Car Valet & Detailing", "60 min", "R450", "Complete inside and out detailing service")
 )
 
 private fun loadCarTypes() =  listOf(
