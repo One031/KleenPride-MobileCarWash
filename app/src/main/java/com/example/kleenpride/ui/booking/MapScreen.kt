@@ -42,7 +42,7 @@ fun MapScreen() {
         }
     }
 
-    // CAMERA centers on CUSTOMER
+    // Camera should center on the customer
     val cameraState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             customerLocation,
@@ -50,11 +50,11 @@ fun MapScreen() {
         )
     }
 
-    // === DUMMY ETA & DISTANCE ===
+    // DUMMY ETA & DISTANCE
     val eta = "15 min"
     val distance = "12 km"
 
-    // === DUMMY ROUTE POINTS (straight line) ===
+    // DUMMY ROUTE POINTS (straight line)
     val polylinePoints = remember(driverLocation) {
         if (driverLocation != null) {
             listOf(
